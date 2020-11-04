@@ -1,2 +1,2 @@
 # Cool-Robot-Arm-Project
-# YEs
+'arm_model.m' is the current model for the arm
