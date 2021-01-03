@@ -1,6 +1,6 @@
 #include <armadillo>
 
-#define CRAP_NUM_FRAMES 6
+#define CRAP_NUM_FRAMES 5
 #define CRAP_NUM_JOINTS CRAP_NUM_FRAMES-1
 
 /*
