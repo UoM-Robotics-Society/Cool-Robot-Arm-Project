@@ -14,15 +14,10 @@ const double PI = 3.141592653589793238463;
 // w_min = lower tau search point
 // w_max = upper tau search point
 
-// Test cost function that takes 5d vector as weights
-double Cost(arma::vec::fixed<5> w) {
-  return w[0] * w[0] + 1 - w[1] + w[2] * 0 + w[3] * 0 + w[4] * 0;
-}
-
 // Golden Search function
-// -x_min = current angles of motors as vector (x-min)
-// -x_max = maximum angle of motors as vector in direction of search
-// returns step as float value
+// @param current_pos - current angles of motors as vector
+// @param direction - direction of search
+// @return step as float value
 arma::vec GoldenSearch(arma::vec current_pos, arma::vec direction) {
   // CONSTANTS
   float tolerance = 0.001;
@@ -38,8 +33,8 @@ arma::vec GoldenSearch(arma::vec current_pos, arma::vec direction) {
   arma::vec w_max = (1 - tau) * x_min + tau * x_max; // initialise upper tau search point
 
   while (arma::max(arma::abs(x_max - x_min)) > tolerance) {
-    float j_w_min = Cost(w_min);;
-    float j_w_max = Cost(w_max);
+    float j_w_min = Cost(w_min); // Fix me
+    float j_w_max = Cost(w_max); // Fix me
     if (j_w_min < j_w_max) {
       x_max = w_max;
       w_max = w_min;
@@ -53,12 +48,4 @@ arma::vec GoldenSearch(arma::vec current_pos, arma::vec direction) {
     std::cout << k << ": " << arma::max(arma::abs(x_max - x_min)) << std::endl;
   }
   return (x_min + x_max) / 2;
-}
-
-int test() {
-arma::vec::fixed<5> start = arma::vec(5, arma::fill::zeros);
-arma::vec::fixed<5> max = arma::vec(5, arma::fill::ones);
-arma::vec res = GoldenSearch(start, max);
-std:: cout << "Result:"<< std::endl << res << std::endl;
-return 0;
 }
