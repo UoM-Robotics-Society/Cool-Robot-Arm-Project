@@ -2,6 +2,8 @@
 #include <iostream>
 #include <cmath>
 
+const double PI = 3.141592653589793238463;
+
 // https://en.wikipedia.org/wiki/Golden-section_search
 
 // tolerance == numerical tolerance threshold
@@ -21,10 +23,15 @@ double Cost(arma::vec::fixed<5> w) {
 // -x_min = current angles of motors as vector (x-min)
 // -x_max = maximum angle of motors as vector in direction of search
 // returns step as float value
-arma::vec GoldenSearch(arma::vec x_min, arma::vec x_max) {
+arma::vec GoldenSearch(arma::vec current_pos, arma::vec direction) {
   // CONSTANTS
   float tolerance = 0.001;
   float tau = 2 / (1 + sqrt(5));
+  arma::vec x_min = current_pos;
+  arma::vec x_max = arma::vec::fixed<5>();
+  for (int i = 0; i < 5; i++) {
+    x_max[i] = (direction[i] >= 0) ? PI : -PI;
+  }
   // VARIALBES
   int k = 0; // interations;
   arma::vec w_min = tau * x_min + (1 - tau) * x_max; // initialise lower tau search point
