@@ -30,5 +30,5 @@ class ForwardKinematics {
     @returns 4-vector of the x, y and z coordinates of the end affector as measured from the ground frame.
     The fourth element of the vector is always 1. This is a by-product of the forward kinematics equation.
     */
-    arma::vec GetExtendedPositionVector(double q[]);
+    arma::vec GetExtendedPositionVector(arma::vec5 q);
 };

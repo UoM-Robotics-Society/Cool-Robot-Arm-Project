@@ -33,23 +33,24 @@ ForwardKinematics::ForwardKinematics() {
     }
 }
 
-arma::vec ForwardKinematics::GetExtendedPositionVector(double q[]) {
-    double q_copy[CRAP_NUM_REVOLUTE_FRAMES];
-    memcpy(q_copy, q, CRAP_NUM_REVOLUTE_FRAMES * sizeof(int));
+arma::vec ForwardKinematics::GetExtendedPositionVector(arma::vec5 q) {
+    arma::vec5 q_copy = arma::vec5(q);
+    // double q_copy[CRAP_NUM_REVOLUTE_FRAMES];
+    // memcpy(q_copy, q, CRAP_NUM_REVOLUTE_FRAMES * sizeof(int));
     
-    q_copy[1] += arma::datum::pi / 2;
-    q_copy[3] -= arma::datum::pi / 2;
+    q_copy(1) += arma::datum::pi / 2;
+    q_copy(3) -= arma::datum::pi / 2;
     
     for(int i = 0; i < CRAP_NUM_REVOLUTE_FRAMES; i++) {
-        A[i](0, 0) = cos(q_copy[i]);
-        A[i](0, 1) = -sin(q_copy[i]) * cos_alpha[i];
-        A[i](0, 2) = sin(q_copy[i]) * sin_alpha[i];
-        A[i](0, 3) = a[i] * cos(q_copy[i]);
+        A[i](0, 0) = cos(q_copy(i));
+        A[i](0, 1) = -sin(q_copy(i)) * cos_alpha[i];
+        A[i](0, 2) = sin(q_copy(i)) * sin_alpha[i];
+        A[i](0, 3) = a[i] * cos(q_copy(i));
 
-        A[i](1, 0) = sin(q_copy[i]);
-        A[i](1, 1) = cos(q_copy[i]) * cos_alpha[i];
-        A[i](1, 2) = -cos(q_copy[i]) * sin_alpha[i];
-        A[i](1, 3) = a[i] * sin(q_copy[i]);
+        A[i](1, 0) = sin(q_copy(i));
+        A[i](1, 1) = cos(q_copy(i)) * cos_alpha[i];
+        A[i](1, 2) = -cos(q_copy(i)) * sin_alpha[i];
+        A[i](1, 3) = a[i] * sin(q_copy(i));
         
         A[i](2, 0) = 0;
         A[i](2, 1) = sin_alpha[i];

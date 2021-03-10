@@ -45,7 +45,7 @@ class LineSearch {
 
     @returns the value of the cost function.
     */
-    double cost_function(double q[], double d);
+    double cost_function(arma::vec5 q, double d);
 
     /*
     Calculate the gradient of the cost function with respect
@@ -56,5 +56,5 @@ class LineSearch {
 
     @returns the gradient of the cost function as a vector.
     */
-    arma::vec cost_function_gradient(double q[], double d);
+    arma::vec cost_function_gradient(arma::vec5 q, double d);
 };

@@ -11,8 +11,8 @@ LineSearch::LineSearch(double r_inner, double r_outer, double h_max, double h_mi
 
     // TODO assign max and min angles
     for(int i = 0; i < CRAP_NUM_REVOLUTE_FRAMES; i++) {
-        min_angle[i] = 0.001;
-        max_angle[i] = 2 * arma::datum::pi;
+        min_angle[i] = -arma::datum::pi;
+        max_angle[i] = arma::datum::pi;
     }
 
     fk = ForwardKinematics();
@@ -24,7 +24,7 @@ void LineSearch::set_goal(double x, double y, double z) {
     goal_z = z;
 }
 
-double LineSearch::cost_function(double q[], double d) {
+double LineSearch::cost_function(arma::vec5 q, double d) {
     arma::vec actual_coords = fk.GetExtendedPositionVector(q);
     double actual_x = actual_coords(0);
     double actual_y = actual_coords(1);
@@ -44,7 +44,7 @@ double LineSearch::cost_function(double q[], double d) {
     return cost;
 }
 
-arma::vec LineSearch::cost_function_gradient(double q[], double d) {
+arma::vec LineSearch::cost_function_gradient(arma::vec5 q, double d) {
     arma::vec grad(5, arma::fill::zeros);
 
     arma::vec actual_coords = fk.GetExtendedPositionVector(q);
@@ -55,33 +55,33 @@ arma::vec LineSearch::cost_function_gradient(double q[], double d) {
     double radius = sqrt(actual_x*actual_x + actual_y*actual_y);
 
     double dx_dq[] = {
-        - 0.65*cos(q[0] + q[3] + q[1] + q[2]) + 0.65*cos(q[0] - q[3] - q[1] - q[2]) - 0.475*sin(q[0] - q[1] - q[2]) - 0.475*sin(q[0] + q[1] + q[2]) - 0.475*sin(q[0] - q[1]) - 0.475*sin(q[0] + q[1]),
-        - 0.65*cos(q[0] + q[3] + q[1] + q[2]) - 0.65*cos(q[0] - q[3] - q[1] - q[2]) + 0.475*sin(q[0] - q[1] - q[2]) - 0.475*sin(q[0] + q[1] + q[2]) + 0.475*sin(q[0] - q[1]) - 0.475*sin(q[0] + q[1]),
-        - 0.65*cos(q[0] + q[3] + q[1] + q[2]) - 0.65*cos(q[0] - q[3] - q[1] - q[2]) + 0.475*sin(q[0] - q[1] - q[2]) - 0.475*sin(q[0] + q[1] + q[2]),
-        - 0.65*cos(q[0] + q[3] + q[1] + q[2]) - 0.65*cos(q[0] - q[3] - q[1] - q[2]),
+        - 0.65*cos(q(0) + q(3) + q(1) + q(2)) + 0.65*cos(q(0) - q(3) - q(1) - q(2)) - 0.475*sin(q(0) - q(1) - q(2)) - 0.475*sin(q(0) + q(1) + q(2)) - 0.475*sin(q(0) - q(1)) - 0.475*sin(q(0) + q(1)),
+        - 0.65*cos(q(0) + q(3) + q(1) + q(2)) - 0.65*cos(q(0) - q(3) - q(1) - q(2)) + 0.475*sin(q(0) - q(1) - q(2)) - 0.475*sin(q(0) + q(1) + q(2)) + 0.475*sin(q(0) - q(1)) - 0.475*sin(q(0) + q(1)),
+        - 0.65*cos(q(0) + q(3) + q(1) + q(2)) - 0.65*cos(q(0) - q(3) - q(1) - q(2)) + 0.475*sin(q(0) - q(1) - q(2)) - 0.475*sin(q(0) + q(1) + q(2)),
+        - 0.65*cos(q(0) + q(3) + q(1) + q(2)) - 0.65*cos(q(0) - q(3) - q(1) - q(2)),
         0
     };
 
     double dy_dq[] = {
-        0.65*sin(q[0] - q[3] - q[1] - q[2]) - 0.65*sin(q[0] + q[3] + q[1] + q[2]) + 0.475*cos(q[0] + q[1] + q[2]) + 0.475*cos(q[0] - q[1] - q[2]) + 0.475*cos(q[0] + q[1]) + 0.475*cos(q[0] - q[1]),
-        - 0.65*sin(q[0] - q[3] - q[1] - q[2]) - 0.65*sin(q[0] + q[3] + q[1] + q[2]) + 0.475*cos(q[0] + q[1] + q[2]) - 0.475*cos(q[0] - q[1] - q[2]) + 0.475*cos(q[0] + q[1]) - 0.475*cos(q[0] - q[1]),
-        - 0.65*sin(q[0] - q[3] - q[1] - q[2]) - 0.65*sin(q[0] + q[3] + q[1] + q[2]) + 0.475*cos(q[0] + q[1] + q[2]) - 0.475*cos(q[0] - q[1] - q[2]),
-        - 0.65*sin(q[0] - q[3] - q[1] - q[2]) - 0.65*sin(q[0] + q[3] + q[1] + q[2]),
+        0.65*sin(q(0) - q(3) - q(1) - q(2)) - 0.65*sin(q(0) + q(3) + q(1) + q(2)) + 0.475*cos(q(0) + q(1) + q(2)) + 0.475*cos(q(0) - q(1) - q(2)) + 0.475*cos(q(0) + q(1)) + 0.475*cos(q(0) - q(1)),
+        - 0.65*sin(q(0) - q(3) - q(1) - q(2)) - 0.65*sin(q(0) + q(3) + q(1) + q(2)) + 0.475*cos(q(0) + q(1) + q(2)) - 0.475*cos(q(0) - q(1) - q(2)) + 0.475*cos(q(0) + q(1)) - 0.475*cos(q(0) - q(1)),
+        - 0.65*sin(q(0) - q(3) - q(1) - q(2)) - 0.65*sin(q(0) + q(3) + q(1) + q(2)) + 0.475*cos(q(0) + q(1) + q(2)) - 0.475*cos(q(0) - q(1) - q(2)),
+        - 0.65*sin(q(0) - q(3) - q(1) - q(2)) - 0.65*sin(q(0) + q(3) + q(1) + q(2)),
         0
     };
 
     double dz_dq[] = {
         0,
-        - 1.3*sin(q[3] + q[1] + q[2]) + 0.95*cos(q[1] + q[2]) + 0.95*cos(q[1]),
-        - 1.3*sin(q[3] + q[1] + q[2]) + 0.95*cos(q[1] + q[2]),
-        - 1.3*sin(q[3] + q[1] + q[2]),
+        - 1.3*sin(q(3) + q(1) + q(2)) + 0.95*cos(q(1) + q(2)) + 0.95*cos(q(1)),
+        - 1.3*sin(q(3) + q(1) + q(2)) + 0.95*cos(q(1) + q(2)),
+        - 1.3*sin(q(3) + q(1) + q(2)),
         0
     };
 
     for(int i = 0; i < CRAP_NUM_REVOLUTE_FRAMES; i++) {
         grad(i) =
             - dx_dq[i] - dy_dq[i] - dz_dq[i]
-            - CRAP_MU * (-1/(max_angle[i] - q[i]) + 1/(q[i] - min_angle[i]) 
+            - CRAP_MU * (-1/(max_angle[i] - q(i)) + 1/(q(i) - min_angle[i]) 
                 - 1/(radius_outer - radius) * (1/radius * (actual_x*dx_dq[i] - actual_y*dy_dq[i]))
                 + 1/(radius - radius_inner) * (1/radius * (actual_x*dx_dq[i] - actual_y*dy_dq[i]))
                 - 1/(height_max - actual_z) * dz_dq[i]
