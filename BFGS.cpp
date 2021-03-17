@@ -2,41 +2,49 @@
 #include <armadillo>
 #include <iostream>
 #include <cmath>
-
-double linesearch (arma::dmat p){
-    return 7;
-}
-
-double Cost(arma::vec::fixed<5> w) {
-  return w[0] * w[0] + 1 - w[1] + w[2] * 0 + w[3] * 0 + w[4] * 0;
-}
+#include "linesearch.h"
+#include "forward_kinematics.h"
 
 
-arma::dmat BFGS (){
-arma::dmat S(1,5,arma::fill::zeros), P(1,5,arma::fill::zeros), Y(1,5,arma::fill::zeros), Bi(5,5,arma::fill::eye), X(1,5,arma::fill::zeros) ,Xp (1,5,arma::fill::zeros);
+
+
+
+arma::dmat BFGS (double x, double y, double z, arma::vec X){
+
+    LineSearch arm(57,365,430,0);
+    arma::dmat S(1,5,arma::fill::zeros), P(1,5,arma::fill::zeros), Y(1,5,arma::fill::zeros), Bi(5,5,arma::fill::eye), Xp (1,5,arma::fill::zeros);
     
     double A;
+    arm.set_goal(x,y,z);
+    double mu = 1000;
 
-    while ((Cost(X))<0.001){
+    while (mu>0.000001){
 
-        X=Xp;
-        P= -(Bi)*(Cost(X));
+       for (int i=0;i<10;i++){
+            P= -(Bi)*(arm.cost_function(X,0,mu));
     
-        A = linesearch(P);
+            Xp = arm.GoldenSearch(X, P, mu);
 
-        S=A*P;
-        Xp+=S;
 
-        Y = Cost(Xp) - Cost(X);
+            Y = arm.cost_function_gradient(Xp, 0, mu) - arm.cost_function_gradient(X,0, mu) ;
 
-        
-        Bi += (((S.t()*Y.t() + Y.t()*Bi*Y)*(S*S.t()))/(arma::powmat((S.t()*Y.t()),2)))-(((Bi*Y*S.t())+(S*Y.t()*Bi))/(S.t()*Y));
+            
+            Bi += (((S.t()*Y.t() + Y.t()*Bi*Y)*(S*S.t()))/(arma::powmat((S.t()*Y.t()),2)))-(((Bi*Y*S.t())+(S*Y.t()*Bi))/(S.t()*Y));
+
+            X=Xp;
+        }
+        mu=mu* 0.9;  
     }
     return X;
 }
 
 
 int main (){
-    BFGS();
+    ForwardKinematics fktoo;
+    arma::vec yeet;
+    yeet << 0 << arma::datum::pi/2 << 0 << -arma::datum::pi/2 << 0 << arma::endr;
+    std::cout << fktoo.GetExtendedPositionVector(yeet) << std::endl;
+    printf("hello\n");
+    //BFGS(yeet);
     return 0;
 }

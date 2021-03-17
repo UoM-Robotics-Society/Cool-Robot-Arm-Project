@@ -1,22 +1,23 @@
+#define ARMA_DONT_USE_STD_MUTEX
 #include <armadillo>
 #include <cstdlib>
 
-#include "forward_kinematics.hpp"
+#include "forward_kinematics.h"
 
 ForwardKinematics::ForwardKinematics() {
     // assign DH parameters
     a[0] = 0;
-    a[1] = 0.95;
-    a[2] = 0.95;
+    a[1] = 95;
+    a[2] = 95;
     a[3] = 0;
     a[4] = 0;
     a[5] = 0;
     
-    d[0] = 0.65;
+    d[0] = 65;
     d[1] = 0;
     d[2] = 0;
     d[3] = 0;
-    d[4] = 1.30;
+    d[4] = 130;
     d[5] = 0;
 
     alpha[0] = arma::datum::pi / 2;
