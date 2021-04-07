@@ -13,8 +13,8 @@ class LineSearch {
     double radius_inner, radius_outer;
     double height_max, height_min;
 
-    double max_angle[CRAP_NUM_REVOLUTE_FRAMES] = {-arma::datum::pi, 0, -2*arma::datum::pi/3, -arma::datum::pi, arma::datum::pi};;
-    double min_angle[CRAP_NUM_REVOLUTE_FRAMES] = {arma::datum::pi, arma::datum::pi, 2*arma::datum::pi/3, 0, arma::datum::pi};;
+    double min_angle[CRAP_NUM_REVOLUTE_FRAMES] = {-arma::datum::pi, -arma::datum::pi/2, -2*arma::datum::pi/3,   -arma::datum::pi/2,   -arma::datum::pi};
+    double max_angle[CRAP_NUM_REVOLUTE_FRAMES] = {arma::datum::pi,  arma::datum::pi/2,  2*arma::datum::pi/3,    arma::datum::pi/2,    arma::datum::pi};
 
     ForwardKinematics fk;
 
