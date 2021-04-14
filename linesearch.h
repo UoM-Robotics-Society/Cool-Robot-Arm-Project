@@ -54,6 +54,14 @@ class LineSearch {
     */
     arma::vec cost_function_gradient(arma::vec5 q, double d, double MU);
 
+    /*
+    Check if angle positions are in bounds
+    @param array of the angles of the 5 revolute joints.
+    @returns true if in bounds
+    */
+    bool InBoundsPos(arma::vec pos);
+    bool InBounds(arma::vec angles);
+
 // https://en.wikipedia.org/wiki/Golden-section_search
 
 // tolerance == numerical tolerance threshold

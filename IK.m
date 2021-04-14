@@ -36,10 +36,10 @@ ax.Projection = 'orthographic';
 hold on
 plot3(points(:,1),points(:,2),points(:,3));
 
-framesPerSecond = 15;
+framesPerSecond = 30;
 r = rateControl(framesPerSecond);
 i = 1;
-while true
+for j = 0:200
     show(robot,qs(i,:)','PreservePlot',false);
     drawnow
     waitfor(r);

@@ -37,7 +37,7 @@ double LineSearch::cost_function(arma::vec5 q, double d, double MU) {
 
     double radius = sqrt(actual_x*actual_x + actual_y*actual_y);
 
-    double cost = abs(goal_x - actual_x) + abs(goal_y - actual_y) + abs(goal_z - actual_z);
+    double cost = pow(goal_x - actual_x, 2) + pow(goal_y - actual_y, 2) + pow(goal_z - actual_z, 2);
     //std::cout<<cost<<std::endl;
     
     for(int i = 0; i < CRAP_NUM_REVOLUTE_FRAMES; i++) {
@@ -91,11 +91,47 @@ arma::vec LineSearch::cost_function_gradient(arma::vec5 q, double d, double MU) 
         double e = -1/(height_max - actual_z) * dz_dq[i];
         double f = 1/(actual_z - height_min) * dz_dq[i];
         grad(i) =
-            - dx_dq[i] - dy_dq[i] - dz_dq[i]
+            - 2 * (goal_x - actual_x) * dx_dq[i] - 2 * (goal_y - actual_y) * dy_dq[i] - 2 * (goal_z - actual_z) * dz_dq[i]
             - MU * (a + b + c + d + e + f);
+        //grad(i) = - 2 * (goal_x - actual_x) * dx_dq[i] - 2 * (goal_y - actual_y) * dy_dq[i] - 2 * (goal_z - actual_z) * dz_dq[i];
     }
 
     return grad;
+}
+
+bool LineSearch::InBoundsPos(arma::vec pos) {
+    arma::vec actual_coords = pos;
+    double actual_x = actual_coords(0);
+    double actual_y = actual_coords(1);
+    double actual_z = actual_coords(2);
+    double radius = sqrt(actual_x*actual_x + actual_y*actual_y);
+    if (radius < radius_inner || radius > radius_outer) {
+        return false;
+    }
+    if (actual_z < height_min || actual_z > height_max) {
+        return false;
+    }
+    return true;
+}
+
+bool LineSearch::InBounds(arma::vec angles) {
+    for (int i = 0; i < 5; i++) {
+        if (angles[i] > max_angle[i] || angles[i] < min_angle[i]) {
+            return false;
+        }
+    }
+    arma::vec actual_coords = fk.GetExtendedPositionVector(angles);
+    double actual_x = actual_coords(0);
+    double actual_y = actual_coords(1);
+    double actual_z = actual_coords(2);
+    double radius = sqrt(actual_x*actual_x + actual_y*actual_y);
+    if (radius < radius_inner || radius > radius_outer) {
+        return false;
+    }
+    if (actual_z < height_min || actual_z > height_max) {
+        return false;
+    }
+    return true;
 }
 
 
@@ -119,9 +155,20 @@ arma::vec LineSearch::GoldenSearch(arma::vec current_pos, arma::vec direction, d
   float tau = 2 / (1 + sqrt(5));
   arma::vec x_min = current_pos;
   arma::vec x_max = arma::vec::fixed<5>();
-  for (int i = 0; i < 5; i++) {
-    x_max[i] = (direction[i] >= 0) ?  this->max_angle[i] : this->min_angle[i];
+  x_max = current_pos;
+  int dir_count = 0;
+
+  while (InBounds(x_max)) {
+      arma::vec dir_inc = direction * 0.001;
+      x_max = x_max + dir_inc;
+      dir_count += 1;
   }
+  x_max -= direction * 0.01;
+
+//   for (int i = 0; i < 5; i++) {
+//     x_max[i] = (direction[i] >= 0) ?  this->max_angle[i] : this->min_angle[i];
+//   }
+
   // VARIALBES
   int k = 0; // interations;
   arma::vec w_min = tau * x_min + (1 - tau) * x_max; // initialise lower tau search point
