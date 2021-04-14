@@ -32,8 +32,7 @@ double LineSearch::cost_function(arma::vec5 q, double d) {
 
     double radius = sqrt(actual_x*actual_x + actual_y*actual_y);
 
-    double cost = (goal_x - actual_x) + (goal_y - actual_y) + (goal_z - actual_z);
-    std::cout<<cost<<std::endl;
+    double cost = pow(goal_x - actual_x, 2) + pow(goal_y - actual_y, 2) + pow(goal_z - actual_z, 2);
     
     for(int i = 0; i < CRAP_NUM_REVOLUTE_FRAMES; i++) {
         cost -= CRAP_MU * (log(max_angle[i] - q[i]) + log(q[i] - min_angle[i]));
@@ -80,7 +79,7 @@ arma::vec LineSearch::cost_function_gradient(arma::vec5 q, double d) {
 
     for(int i = 0; i < CRAP_NUM_REVOLUTE_FRAMES; i++) {
         grad(i) =
-            - dx_dq[i] - dy_dq[i] - dz_dq[i]
+            - 2 * (goal_x - actual_x) * dx_dq[i] - 2 * (goal_y - actual_y) * dy_dq[i] - 2 * (goal_z - actual_z) * dz_dq[i]
             - CRAP_MU * (-1/(max_angle[i] - q(i)) + 1/(q(i) - min_angle[i]) 
                 - 1/(radius_outer - radius) * (1/radius * (actual_x*dx_dq[i] - actual_y*dy_dq[i]))
                 + 1/(radius - radius_inner) * (1/radius * (actual_x*dx_dq[i] - actual_y*dy_dq[i]))
