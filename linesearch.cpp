@@ -60,26 +60,26 @@ arma::vec LineSearch::cost_function_gradient(arma::vec5 q, double d, double MU) 
     double radius = sqrt(actual_x*actual_x + actual_y*actual_y);
 
     double dx_dq[] = {
-        - 0.65*cos(q(0) + q(3) + q(1) + q(2)) + 0.65*cos(q(0) - q(3) - q(1) - q(2)) - 0.475*sin(q(0) - q(1) - q(2)) - 0.475*sin(q(0) + q(1) + q(2)) - 0.475*sin(q(0) - q(1)) - 0.475*sin(q(0) + q(1)),
-        - 0.65*cos(q(0) + q(3) + q(1) + q(2)) - 0.65*cos(q(0) - q(3) - q(1) - q(2)) + 0.475*sin(q(0) - q(1) - q(2)) - 0.475*sin(q(0) + q(1) + q(2)) + 0.475*sin(q(0) - q(1)) - 0.475*sin(q(0) + q(1)),
-        - 0.65*cos(q(0) + q(3) + q(1) + q(2)) - 0.65*cos(q(0) - q(3) - q(1) - q(2)) + 0.475*sin(q(0) - q(1) - q(2)) - 0.475*sin(q(0) + q(1) + q(2)),
-        - 0.65*cos(q(0) + q(3) + q(1) + q(2)) - 0.65*cos(q(0) - q(3) - q(1) - q(2)),
+        - 0.065*cos(q(0) + q(3) + q(1) + q(2)) + 0.065*cos(q(0) - q(3) - q(1) - q(2)) - 0.0475*sin(q(0) - q(1) - q(2)) - 0.0475*sin(q(0) + q(1) + q(2)) - 0.0475*sin(q(0) - q(1)) - 0.0475*sin(q(0) + q(1)),
+        - 0.065*cos(q(0) + q(3) + q(1) + q(2)) - 0.065*cos(q(0) - q(3) - q(1) - q(2)) + 0.0475*sin(q(0) - q(1) - q(2)) - 0.0475*sin(q(0) + q(1) + q(2)) + 0.0475*sin(q(0) - q(1)) - 0.0475*sin(q(0) + q(1)),
+        - 0.065*cos(q(0) + q(3) + q(1) + q(2)) - 0.065*cos(q(0) - q(3) - q(1) - q(2)) + 0.0475*sin(q(0) - q(1) - q(2)) - 0.0475*sin(q(0) + q(1) + q(2)),
+        - 0.065*cos(q(0) + q(3) + q(1) + q(2)) - 0.065*cos(q(0) - q(3) - q(1) - q(2)),
         0
     };
 
     double dy_dq[] = {
-        0.65*sin(q(0) - q(3) - q(1) - q(2)) - 0.65*sin(q(0) + q(3) + q(1) + q(2)) + 0.475*cos(q(0) + q(1) + q(2)) + 0.475*cos(q(0) - q(1) - q(2)) + 0.475*cos(q(0) + q(1)) + 0.475*cos(q(0) - q(1)),
-        - 0.65*sin(q(0) - q(3) - q(1) - q(2)) - 0.65*sin(q(0) + q(3) + q(1) + q(2)) + 0.475*cos(q(0) + q(1) + q(2)) - 0.475*cos(q(0) - q(1) - q(2)) + 0.475*cos(q(0) + q(1)) - 0.475*cos(q(0) - q(1)),
-        - 0.65*sin(q(0) - q(3) - q(1) - q(2)) - 0.65*sin(q(0) + q(3) + q(1) + q(2)) + 0.475*cos(q(0) + q(1) + q(2)) - 0.475*cos(q(0) - q(1) - q(2)),
-        - 0.65*sin(q(0) - q(3) - q(1) - q(2)) - 0.65*sin(q(0) + q(3) + q(1) + q(2)),
+        0.065*sin(q(0) - q(3) - q(1) - q(2)) - 0.065*sin(q(0) + q(3) + q(1) + q(2)) + 0.0475*cos(q(0) + q(1) + q(2)) + 0.0475*cos(q(0) - q(1) - q(2)) + 0.0475*cos(q(0) + q(1)) + 0.0475*cos(q(0) - q(1)),
+        - 0.065*sin(q(0) - q(3) - q(1) - q(2)) - 0.065*sin(q(0) + q(3) + q(1) + q(2)) + 0.0475*cos(q(0) + q(1) + q(2)) - 0.0475*cos(q(0) - q(1) - q(2)) + 0.0475*cos(q(0) + q(1)) - 0.0475*cos(q(0) - q(1)),
+        - 0.065*sin(q(0) - q(3) - q(1) - q(2)) - 0.065*sin(q(0) + q(3) + q(1) + q(2)) + 0.0475*cos(q(0) + q(1) + q(2)) - 0.0475*cos(q(0) - q(1) - q(2)),
+        - 0.065*sin(q(0) - q(3) - q(1) - q(2)) - 0.065*sin(q(0) + q(3) + q(1) + q(2)),
         0
     };
 
     double dz_dq[] = {
         0,
-        - 1.3*sin(q(3) + q(1) + q(2)) + 0.95*cos(q(1) + q(2)) + 0.95*cos(q(1)),
-        - 1.3*sin(q(3) + q(1) + q(2)) + 0.95*cos(q(1) + q(2)),
-        - 1.3*sin(q(3) + q(1) + q(2)),
+        - 0.13*sin(q(3) + q(1) + q(2)) + 0.095*cos(q(1) + q(2)) + 0.095*cos(q(1)),
+        - 0.13*sin(q(3) + q(1) + q(2)) + 0.095*cos(q(1) + q(2)),
+        - 0.13*sin(q(3) + q(1) + q(2)),
         0
     };
 
@@ -163,8 +163,8 @@ arma::vec LineSearch::GoldenSearch(arma::vec current_pos, arma::vec direction, d
       x_max = x_max + dir_inc;
       dir_count += 1;
   }
-  x_max -= direction * 0.01;
-
+  x_max = x_max - direction * 0.01;
+  std::cout << dir_count << std::endl;
 //   for (int i = 0; i < 5; i++) {
 //     x_max[i] = (direction[i] >= 0) ?  this->max_angle[i] : this->min_angle[i];
 //   }

@@ -6,22 +6,23 @@
 #include "forward_kinematics.h"
 
 arma::vec BFGS (double x, double y, double z, arma::vec X){
+
     int count = 0;
     LineSearch arm(0.057,0.365,0.430,0);
     arma::dmat Bi(5,5,arma::fill::eye);
     arma::vec Xp(5, arma::fill::zeros), P(5,arma::fill::zeros), S(5,arma::fill::zeros), Y(5,arma::fill::zeros);
     double A;
     arm.set_goal(x,y,z);
-    double mu = 0.01;
+    double mu = 0.1;
     ForwardKinematics fk = ForwardKinematics();
 
-    while (mu>0.000001){
+    while (mu>0.0001){
 
-       for (int i=0;i<100;i++){
+       for (int i=0;i<10;i++){
             arma::vec costVec = arm.cost_function_gradient(X,0,mu);
             P = -(Bi*costVec);
 
-            if (true) {
+            if (false) {
                 //std::cout << "---------------------" << std::endl;
                 arma::vec pos = fk.GetExtendedPositionVector(X);
                 std::cout << "";
@@ -29,7 +30,7 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
                 std::cout << pos[1] << ","; 
                 std::cout << pos[2] << std::endl;
             }
-            if (false) {
+            if (true) {
                 std::cout << "cost = ";
                 std::cout << costVec[0] << " ";  
                 std::cout << costVec[1] << " ";   
@@ -113,10 +114,10 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
         }
         mu=mu* 0.9;  
     }
-    arma::vec good;
-    good << 0.540419489324968 << 0.334426881574699 << 0.658670308915048 << 0.600956360426415 << 0 << arma::endr;
-    std::cout << arm.cost_function(good,0,mu) << std::endl;
-    std::cout << arm.cost_function_gradient(good,0,mu) << std::endl;
+    //arma::vec good;
+    //good << 0.540419489324968 << 0.334426881574699 << 0.658670308915048 << 0.600956360426415 << 0 << arma::endr;
+    //std::cout << arm.cost_function(good,0,mu) << std::endl;
+    //std::cout << arm.cost_function_gradient(good,0,mu) << std::endl;
     return X;
 }
 
@@ -130,7 +131,7 @@ int main (){
     arma::vec start;
     start << 0.2 << 0.2 << 0.2 << 0.2 << 0 << arma::endr;
     double x, y, z = 0;
-    
+
     x = 0.15;
     y = 0.15;
     z = 0.2;
@@ -139,15 +140,15 @@ int main (){
 
     std::cout << "---------------------" << std::endl;
     std::cout << x << ", " << y << ", " << z << std::endl;
-    arma::dmat mat = BFGS(x, y, z, start);
+    arma::dmat end = BFGS(x, y, z, start);
     std::cout << "---------------------" << std::endl;
     std::cout << "Caluclated Motor Angles" << std::endl;
-    std::cout << mat[0] << std::endl;    
-    std::cout << mat[1] << std::endl;    
-    std::cout << mat[2] << std::endl;
-    std::cout << mat[3] << std::endl;
-    std::cout << mat[4] << std::endl;
-    arma::vec::fixed<5> vmat = mat.as_col();
+    std::cout << end[0] << std::endl;    
+    std::cout << end[1] << std::endl;    
+    std::cout << end[2] << std::endl;
+    std::cout << end[3] << std::endl;
+    std::cout << end[4] << std::endl;
+    arma::vec::fixed<5> vmat = end.as_col();
     
     ls.set_goal(x,y,z);
     std::cout << "Final Cost = " << ls.cost_function(vmat, 0, 0.00001) << std::endl;
@@ -160,9 +161,12 @@ int main (){
     std::cout << pos[1] << std::endl;    
     std::cout << pos[2] << std::endl;
     std::cout << pos[3] << std::endl;
-
-    std::cout << ls.InBounds(start) << std::endl;
+    std::cout << "---------------------" << std::endl;
+    std::cout << "In-bounds tests" << std::endl;
+    std::cout << ls.InBounds(end) << std::endl;
     std::cout << ls.InBoundsPos(position) << std::endl;
+    std::cout << "---------------------" << std::endl;
+    std::cout << "Start pos" << std::endl;
     std::cout << fktoo.GetExtendedPositionVector(start) << std::endl;
 
     std::cout << "Press Enter Key to Continue..." << std::endl;     
