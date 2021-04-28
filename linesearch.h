@@ -4,7 +4,8 @@
 
 // TODO documentation
 // ? choose a different value
-
+void print_mat(arma::mat mat, int m = 5, int n = 5);
+void print_vec(arma::vec v, int size = 5);
 
 class LineSearch {
     private:
@@ -60,7 +61,7 @@ class LineSearch {
     @returns true if in bounds
     */
     bool InBoundsPos(arma::vec pos);
-    bool InBounds(arma::vec angles);
+    int InBounds(arma::vec angles);
 
 // https://en.wikipedia.org/wiki/Golden-section_search
 

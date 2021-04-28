@@ -132,7 +132,6 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
             std::cout << "Bi: " << std::endl;
             print_mat(Bi);
         }
-        mu=mu* 0.9;  
     }
     //arma::vec good;
     //good << 0.540419489324968 << 0.334426881574699 << 0.658670308915048 << 0.600956360426415 << 0 << arma::endr;
@@ -152,12 +151,12 @@ int main (){
     start << 0.2 << 0.2 << 0.2 << 0.2 << 0 << arma::endr;
     double x, y, z = 0;
 
-    x = 0.15;
-    y = 0.15;
-    z = 0.2;
+    x = 0.2;
+    y = 0.1;
+    z = 0.1;
     arma::vec position;
     position << x << y << z << arma::endr;
-
+    print_vec(fktoo.GetExtendedPositionVector(start));
     std::cout << "---------------------" << std::endl;
     std::cout << x << ", " << y << ", " << z << std::endl;
     arma::dmat end = BFGS(x, y, z, start);
