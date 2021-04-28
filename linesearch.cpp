@@ -4,6 +4,25 @@
 
 #include "linesearch.h"
 
+#define USE_BOUNDS false
+
+void print_mat(arma::mat mat, int m, int n) {
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            std::cout << mat[i * m + j] << "   ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+void print_vec(arma::vec v, int size) {
+    std::cout << v[0];
+    for (int i = 1; i < size; i++) {
+        std::cout << ", " << v[i] ;
+    }
+    std::cout << std::endl;
+}
+
 LineSearch::LineSearch(double r_inner, double r_outer, double h_max, double h_min) {
     radius_inner = r_inner;
     radius_outer = r_outer;
@@ -38,13 +57,13 @@ double LineSearch::cost_function(arma::vec5 q, double d, double MU) {
     double radius = sqrt(actual_x*actual_x + actual_y*actual_y);
 
     double cost = pow(goal_x - actual_x, 2) + pow(goal_y - actual_y, 2) + pow(goal_z - actual_z, 2);
-    //std::cout<<cost<<std::endl;
     
-    for(int i = 0; i < CRAP_NUM_REVOLUTE_FRAMES; i++) {
-        cost += MU * (log(max_angle[i] - q[i]) + log(q[i] - min_angle[i]));
+    if (USE_BOUNDS) {
+        for(int i = 0; i < CRAP_NUM_REVOLUTE_FRAMES; i++) {
+            cost += MU * (log(max_angle[i] - q[i]) + log(q[i] - min_angle[i]));
+        }
+        cost += MU * (log(radius_outer - radius) + log(radius - radius_inner) + log(height_max - actual_z) + log(actual_z - height_min));
     }
-
-    cost += MU * (log(radius_outer - radius) + log(radius - radius_inner) + log(height_max - actual_z) + log(actual_z - height_min));
     
     return cost;
 }
@@ -93,7 +112,9 @@ arma::vec LineSearch::cost_function_gradient(arma::vec5 q, double d, double MU) 
         grad(i) =
             - 2 * (goal_x - actual_x) * dx_dq[i] - 2 * (goal_y - actual_y) * dy_dq[i] - 2 * (goal_z - actual_z) * dz_dq[i]
             - MU * (a + b + c + d + e + f);
-        //grad(i) = - 2 * (goal_x - actual_x) * dx_dq[i] - 2 * (goal_y - actual_y) * dy_dq[i] - 2 * (goal_z - actual_z) * dz_dq[i];
+        if (USE_BOUNDS) {
+            grad(i) = - 2 * (goal_x - actual_x) * dx_dq[i] - 2 * (goal_y - actual_y) * dy_dq[i] - 2 * (goal_z - actual_z) * dz_dq[i];
+        }
     }
 
     return grad;
@@ -125,12 +146,13 @@ bool LineSearch::InBounds(arma::vec angles) {
     double actual_y = actual_coords(1);
     double actual_z = actual_coords(2);
     double radius = sqrt(actual_x*actual_x + actual_y*actual_y);
-    if (radius < radius_inner || radius > radius_outer) {
-        return false;
-    }
-    if (actual_z < height_min || actual_z > height_max) {
-        return false;
-    }
+    //if (radius < radius_inner || radius > radius_outer) {
+    // if (radius < radius_inner || radius > radius_outer) {
+    //     return false;
+    // }
+    // if (actual_z < height_min || actual_z > height_max) {
+    //     return false;
+    // }
     return true;
 }
 
@@ -150,49 +172,65 @@ bool LineSearch::InBounds(arma::vec angles) {
 // @param direction - direction of search
 // @return step as float value
 arma::vec LineSearch::GoldenSearch(arma::vec current_pos, arma::vec direction, double mu) {
-  // CONSTANTS
-  float tolerance = 0.00001;
-  float tau = 2 / (1 + sqrt(5));
-  arma::vec x_min = current_pos;
-  arma::vec x_max = arma::vec::fixed<5>();
-  x_max = current_pos;
-  int dir_count = 0;
+    // CONSTANTS
+    arma::vec dir_norm = arma::normalise(direction);
+    float tolerance = 0.00001;
+    float tau = 2 / (1 + sqrt(5));
+    float dir_step = 0.001;
+    arma::vec x_min = current_pos;
+    arma::vec x_max = arma::vec::fixed<5>();
+    arma::vec start_min = x_min;
+    arma::vec start_max = x_max;
+    x_max = current_pos;
+    int dir_count = 0;
+    arma::vec dir_inc = dir_norm * dir_step;
 
-  while (InBounds(x_max)) {
-      arma::vec dir_inc = direction * 0.001;
-      x_max = x_max + dir_inc;
-      dir_count += 1;
-  }
-  x_max = x_max - direction * 0.01;
-  std::cout << dir_count << std::endl;
-//   for (int i = 0; i < 5; i++) {
-//     x_max[i] = (direction[i] >= 0) ?  this->max_angle[i] : this->min_angle[i];
-//   }
+    // std::cout << "dir_norm = "; print_vec(dir_norm);
 
-  // VARIALBES
-  int k = 0; // interations;
-  arma::vec w_min = tau * x_min + (1 - tau) * x_max; // initialise lower tau search point
-  arma::vec w_max = (1 - tau) * x_min + tau * x_max; // initialise upper tau search point
-
-  while (arma::max(arma::abs(x_max - x_min)) > tolerance) {
-    float j_w_min = this->cost_function(w_min,0,mu);
-    float j_w_max = this->cost_function(w_max,0,mu);
-    if (j_w_min < j_w_max) {
-        x_max = w_max;
-        w_max = w_min;
-        w_min = tau * x_min + (1 - tau) * x_max;
-    } else {
-        x_min = w_min;
-        w_min = w_max;
-        w_max = (1 - tau) * x_min + tau * x_max;
+    while (InBounds(x_max)) {
+        x_max = x_max + dir_inc;
+        dir_count += 1;
     }
-    k += 1;
-    //std::cout << k << ": " << arma::max(arma::abs(x_max - x_min)) << std::endl;
-  }
-  if (false) {
-        std::cout << "x_min: " << this->cost_function(x_min, 0, 0.000000001) << std::endl; 
-        std::cout << "x_max: " << this->cost_function(x_max, 0, 0.000000001) << std::endl; 
+    // std::cout << dir_count << std::endl;
+    if (dir_count == 1) {
+        std::cout << "wah" << std::endl;
+        InBounds(x_max);
     }
-  arma::vec v = (x_min + x_max) * 0.5;
-  return v;
+    x_max = x_max - dir_inc * 0.999;
+
+    //   for (int i = 0; i < 5; i++) {
+    //     x_max[i] = (direction[i] >= 0) ?  this->max_angle[i] : this->min_angle[i];
+    //   }
+
+    // VARIALBES
+    int k = 0; // interations;
+    arma::vec w_min = tau * x_min + (1 - tau) * x_max; // initialise lower tau search point
+    arma::vec w_max = (1 - tau) * x_min + tau * x_max; // initialise upper tau search point
+
+    while (arma::max(arma::abs(x_max - x_min)) > tolerance) {
+        float j_w_min = this->cost_function(w_min,0,mu);
+        float j_w_max = this->cost_function(w_max,0,mu);
+        if (j_w_min < j_w_max) {
+            x_max = w_max;
+            w_max = w_min;
+            w_min = tau * x_min + (1 - tau) * x_max;
+        } else {
+            x_min = w_min;
+            w_min = w_max;
+            w_max = (1 - tau) * x_min + tau * x_max;
+        }
+        k += 1;
+        //std::cout << k << ": " << arma::max(arma::abs(x_max - x_min)) << std::endl;
+    }
+    arma::vec v = (x_min + x_max) * 0.5;
+    if (false) {
+        std::cout << "start_min: " << this->cost_function(start_min, 0, 0.1) << std::endl; 
+        std::cout << "final_res: " << this->cost_function(v, 0, 0.1) << std::endl;
+        std::cout << "start_max: " << this->cost_function(start_max, 0, 0.1) << std::endl; 
+    }
+    if (false) {
+        std::cout << "x_min: " << this->cost_function(x_min, 0, 0.1) << std::endl; 
+        std::cout << "x_max: " << this->cost_function(x_max, 0, 0.1) << std::endl; 
+    }
+    return v;
 }
