@@ -114,6 +114,14 @@ bool LineSearch::InBoundsPos(arma::vec pos) {
     return true;
 }
 
+bool LineSearch::InBoundsPos2(arma::vec pos){
+    double actual_x = pos(0);
+    double actual_y = pos(1);
+    double actual_z = pos(2);
+    
+
+}
+
 bool LineSearch::InBounds(arma::vec angles) {
     for (int i = 0; i < 5; i++) {
         if (angles[i] > max_angle[i] || angles[i] < min_angle[i]) {
