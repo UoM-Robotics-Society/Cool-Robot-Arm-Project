@@ -4,7 +4,7 @@
 
 #include "linesearch.h"
 
-#define USE_BOUNDS false
+#define USE_BOUNDS true
 
 void print_mat(arma::mat mat, int m, int n) {
     for (int i = 0; i < m; i++) {
@@ -82,7 +82,7 @@ arma::vec LineSearch::cost_function_gradient(arma::vec5 q, double d, double MU) 
 
     double radius = sqrt(actual_x*actual_x + actual_y*actual_y);
 
-    bool chris = false;
+    bool chris = true;
 
     double dx_dq[] = {
         - 0.065*cos(q(0) + q(3) + q(1) + q(2)) + 0.065*cos(q(0) - q(3) - q(1) - q(2)) - 0.0475*sin(q(0) - q(1) - q(2)) - 0.0475*sin(q(0) + q(1) + q(2)) - 0.0475*sin(q(0) - q(1)) - 0.0475*sin(q(0) + q(1)),
@@ -137,7 +137,7 @@ int LineSearch::InBoundsPos(arma::vec pos) {
     double actual_x = pos(0);
     double actual_y = pos(1);
     double actual_z = pos(2);
-    double radius = sqrt(pow(actual_x,2) + pow(actual_y,2) + pow(actual_z - 0.065,2));
+    double radius = sqrt(pow(actual_x,2) + pow(actual_y,2));
     if(USE_BOUNDS){
         if(radius < radius_inner){
             return 3;
@@ -157,7 +157,7 @@ int LineSearch::InBounds(arma::vec angles) {
     double actual_x = actual_coords(0);
     double actual_y = actual_coords(1);
     double actual_z = actual_coords(2);
-    double radius = sqrt(pow(actual_x,2) + pow(actual_y,2) + pow(actual_z - 0.065,2));
+    double radius = sqrt(pow(actual_x,2) + pow(actual_y,2));
     if(USE_BOUNDS){
         for (int i = 0; i < 5; i++) {
             if (angles[i] > max_angle[i] || angles[i] < min_angle[i]) {
