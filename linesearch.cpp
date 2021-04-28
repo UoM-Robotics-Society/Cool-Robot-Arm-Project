@@ -18,7 +18,7 @@ void print_mat(arma::mat mat, int m, int n) {
 void print_vec(arma::vec v, int size) {
     std::cout << v[0];
     for (int i = 1; i < size; i++) {
-        std::cout << ", " << v[i] ;
+        std::cout << "   " << v[i] ;
     }
     std::cout << std::endl;
 }
@@ -80,7 +80,9 @@ arma::vec LineSearch::cost_function_gradient(arma::vec5 q, double d, double MU) 
     double actual_y = actual_coords(1);
     double actual_z = actual_coords(2);
 
-    /*double radius = sqrt(actual_x*actual_x + actual_y*actual_y);
+    double radius = sqrt(actual_x*actual_x + actual_y*actual_y);
+
+    bool chris = false;
 
     double dx_dq[] = {
         - 0.065*cos(q(0) + q(3) + q(1) + q(2)) + 0.065*cos(q(0) - q(3) - q(1) - q(2)) - 0.0475*sin(q(0) - q(1) - q(2)) - 0.0475*sin(q(0) + q(1) + q(2)) - 0.0475*sin(q(0) - q(1)) - 0.0475*sin(q(0) + q(1)),
@@ -119,29 +121,35 @@ arma::vec LineSearch::cost_function_gradient(arma::vec5 q, double d, double MU) 
         if (!USE_BOUNDS) {
             grad(i) = - 2 * (goal_x - actual_x) * dx_dq[i] - 2 * (goal_y - actual_y) * dy_dq[i] - 2 * (goal_z - actual_z) * dz_dq[i];
         }
-    }*/
+    }
 
-    grad(0) = -0.130*goal_x*cos(q0 - q3 - q1 - q2) + 0.0950*goal_x*sin(q0 - q1 - q2) + 0.0950*goal_x*sin(q0 - q1) - 0.130*goal_y*sin(q0 - q3 - q1 - q2) - 0.0950*goal_y*cos(q0 - q1 - q2) - 0.0950*goal_y*cos(q0 - q1) + 0.130*goal_x*cos(q0 + q3 + q1 + q2) + 0.0950*goal_x*sin(q0 + q1 + q2) + 0.0950*goal_x*sin(q0 + q1) + 0.130*goal_y*sin(q0 + q3 + q1 + q2) - 0.0950*goal_y*cos(q0 + q1 + q2) - 0.0950*goal_y*cos(q0 + q1);
-    grad(1) = 0.130*goal_y*sin(q0 + q3 + q1 + q2) - 0.0950*goal_y*cos(q0 + q1 + q2) - 0.0950*goal_y*cos(q0 + q1) + 0.130*goal_x*cos(q0 + q3 + q1 + q2) + 0.0950*goal_x*sin(q0 + q1 + q2) + 0.0950*goal_x*sin(q0 + q1) + 0.012350*cos(q1 + q2) + 0.130*goal_y*sin(q0 - q3 - q1 - q2) + 0.0950*goal_y*cos(q0 - q1 - q2) + 0.0950*goal_y*cos(q0 - q1) + 0.130*goal_x*cos(q0 - q3 - q1 - q2) - 0.0950*goal_x*sin(q0 - q1 - q2) - 0.0950*goal_x*sin(q0 - q1) - 0.01690*sin(q3 + q1 + q2) + 0.012350*cos(q1) + 0.26*goal_z*sin(q3 + q1 + q2) - 0.190*goal_z*cos(q1 + q2) - 0.190*goal_z*cos(q1);
-    grad(2) = 0.130*goal_y*sin(q0 + q3 + q1 + q2) - 0.0950*goal_y*cos(q0 + q1 + q2) + 0.130*goal_x*cos(q0 + q3 + q1 + q2) + 0.0950*goal_x*sin(q0 + q1 + q2) + 0.012350*cos(q1 + q2) + 0.130*goal_y*sin(q0 - q3 - q1 - q2) + 0.0950*goal_y*cos(q0 - q1 - q2) + 0.130*goal_x*cos(q0 - q3 - q1 - q2) - 0.0950*goal_x*sin(q0 - q1 - q2) - 0.01690*sin(q3 + q1 + q2) - 0.01805000000*sin(q2) - 0.02470000000*cos(q3 + q2) + 0.26*goal_z*sin(q3 + q1 + q2) - 0.190*goal_z*cos(q1 + q2);
-    grad(3) = 0.130*goal_y*sin(q0 + q3 + q1 + q2) + 0.130*goal_x*cos(q0 + q3 + q1 + q2) + 0.130*goal_y*sin(q0 - q3 - q1 - q2) + 0.130*goal_x*cos(q0 - q3 - q1 - q2) - 0.01690*sin(q3 + q1 + q2) - 0.02470000000*cos(q3 + q2) - 0.02470000000*cos(q3) + 0.26*goal_z*sin(q3 + q1 + q2);
-    grad(4) = 0;
+    if(chris){
+        grad(0) = -0.130*goal_x*cos(q0 - q3 - q1 - q2) + 0.0950*goal_x*sin(q0 - q1 - q2) + 0.0950*goal_x*sin(q0 - q1) - 0.130*goal_y*sin(q0 - q3 - q1 - q2) - 0.0950*goal_y*cos(q0 - q1 - q2) - 0.0950*goal_y*cos(q0 - q1) + 0.130*goal_x*cos(q0 + q3 + q1 + q2) + 0.0950*goal_x*sin(q0 + q1 + q2) + 0.0950*goal_x*sin(q0 + q1) + 0.130*goal_y*sin(q0 + q3 + q1 + q2) - 0.0950*goal_y*cos(q0 + q1 + q2) - 0.0950*goal_y*cos(q0 + q1);
+        grad(1) = 0.130*goal_y*sin(q0 + q3 + q1 + q2) - 0.0950*goal_y*cos(q0 + q1 + q2) - 0.0950*goal_y*cos(q0 + q1) + 0.130*goal_x*cos(q0 + q3 + q1 + q2) + 0.0950*goal_x*sin(q0 + q1 + q2) + 0.0950*goal_x*sin(q0 + q1) + 0.012350*cos(q1 + q2) + 0.130*goal_y*sin(q0 - q3 - q1 - q2) + 0.0950*goal_y*cos(q0 - q1 - q2) + 0.0950*goal_y*cos(q0 - q1) + 0.130*goal_x*cos(q0 - q3 - q1 - q2) - 0.0950*goal_x*sin(q0 - q1 - q2) - 0.0950*goal_x*sin(q0 - q1) - 0.01690*sin(q3 + q1 + q2) + 0.012350*cos(q1) + 0.26*goal_z*sin(q3 + q1 + q2) - 0.190*goal_z*cos(q1 + q2) - 0.190*goal_z*cos(q1);
+        grad(2) = 0.130*goal_y*sin(q0 + q3 + q1 + q2) - 0.0950*goal_y*cos(q0 + q1 + q2) + 0.130*goal_x*cos(q0 + q3 + q1 + q2) + 0.0950*goal_x*sin(q0 + q1 + q2) + 0.012350*cos(q1 + q2) + 0.130*goal_y*sin(q0 - q3 - q1 - q2) + 0.0950*goal_y*cos(q0 - q1 - q2) + 0.130*goal_x*cos(q0 - q3 - q1 - q2) - 0.0950*goal_x*sin(q0 - q1 - q2) - 0.01690*sin(q3 + q1 + q2) - 0.01805000000*sin(q2) - 0.02470000000*cos(q3 + q2) + 0.26*goal_z*sin(q3 + q1 + q2) - 0.190*goal_z*cos(q1 + q2);
+        grad(3) = 0.130*goal_y*sin(q0 + q3 + q1 + q2) + 0.130*goal_x*cos(q0 + q3 + q1 + q2) + 0.130*goal_y*sin(q0 - q3 - q1 - q2) + 0.130*goal_x*cos(q0 - q3 - q1 - q2) - 0.01690*sin(q3 + q1 + q2) - 0.02470000000*cos(q3 + q2) - 0.02470000000*cos(q3) + 0.26*goal_z*sin(q3 + q1 + q2);
+        grad(4) = 0;
+    }
     return grad;
 }
 
-bool LineSearch::InBoundsPos(arma::vec pos) {
-    arma::vec actual_coords = pos;
-    double actual_x = actual_coords(0);
-    double actual_y = actual_coords(1);
-    double actual_z = actual_coords(2);
-    double radius = sqrt(actual_x*actual_x + actual_y*actual_y);
-    if (radius < radius_inner || radius > radius_outer) {
-        return false;
+int LineSearch::InBoundsPos(arma::vec pos) {
+    double actual_x = pos(0);
+    double actual_y = pos(1);
+    double actual_z = pos(2);
+    double radius = sqrt(pow(actual_x,2) + pow(actual_y,2) + pow(actual_z - 0.065,2));
+    if(USE_BOUNDS){
+        if(radius < radius_inner){
+            return 3;
+        }
     }
-    if (actual_z < height_min || actual_z > height_max) {
-        return false;
+    if (radius > radius_outer) {
+        return 1;
     }
-    return true;
+    if (actual_z < height_min) {
+        return 2;
+    }
+    return 0;
 }
 
 int LineSearch::InBounds(arma::vec angles) {
@@ -149,7 +157,7 @@ int LineSearch::InBounds(arma::vec angles) {
     double actual_x = actual_coords(0);
     double actual_y = actual_coords(1);
     double actual_z = actual_coords(2);
-    double radius = sqrt(actual_x*actual_x + actual_y*actual_y);
+    double radius = sqrt(pow(actual_x,2) + pow(actual_y,2) + pow(actual_z - 0.065,2));
     if(USE_BOUNDS){
         for (int i = 0; i < 5; i++) {
             if (angles[i] > max_angle[i] || angles[i] < min_angle[i]) {
@@ -165,9 +173,6 @@ int LineSearch::InBounds(arma::vec angles) {
     }
     if (actual_z < height_min) {
         return 2;
-    }
-    if(actual_z > height_max){
-        return 3;
     }
     return 0;
 }
@@ -190,9 +195,9 @@ int LineSearch::InBounds(arma::vec angles) {
 arma::vec LineSearch::GoldenSearch(arma::vec current_pos, arma::vec direction, double mu) {
     // CONSTANTS
     arma::vec dir_norm = arma::normalise(direction);
-    float tolerance = 0.000001;
+    float tolerance = 0.0000001;
     float tau = 2 / (1 + sqrt(5));
-    float dir_step = 0.001;
+    float dir_step = 0.01;
     arma::vec x_min = current_pos;
     arma::vec x_max = arma::vec::fixed<5>();
     arma::vec start_min = x_min;
@@ -201,7 +206,7 @@ arma::vec LineSearch::GoldenSearch(arma::vec current_pos, arma::vec direction, d
     int dir_count = 0;
     arma::vec dir_inc = dir_norm * dir_step;
 
-    std::cout << "dir_norm = "; print_vec(dir_norm);
+    //std::cout << "dir_norm = "; print_vec(dir_norm);
 
     while (InBounds(x_max) == 0) {
         x_max = x_max + dir_inc;
@@ -212,9 +217,10 @@ arma::vec LineSearch::GoldenSearch(arma::vec current_pos, arma::vec direction, d
         std::cout << "wah" << std::endl;
     }
     while (InBounds(x_max) != 0) {
-         x_max = x_max - dir_inc * 0.99;
+         x_max = x_max - dir_inc * 0.5;
     }
     std::cout << InBounds(x_max) << std::endl;
+    std::cout << dir_count << std::endl;
     //   for (int i = 0; i < 5; i++) {
     //     x_max[i] = (direction[i] >= 0) ?  this->max_angle[i] : this->min_angle[i];
     //   }

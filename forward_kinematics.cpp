@@ -35,7 +35,7 @@ ForwardKinematics::ForwardKinematics() {
 }
 
 arma::vec ForwardKinematics::GetExtendedPositionVector(arma::vec5 q) {
-    arma::vec5 q_copy = arma::vec5(q);
+    /*arma::vec5 q_copy = arma::vec5(q);
     // double q_copy[CRAP_NUM_REVOLUTE_FRAMES];
     // memcpy(q_copy, q, CRAP_NUM_REVOLUTE_FRAMES * sizeof(int));
     
@@ -90,13 +90,17 @@ arma::vec ForwardKinematics::GetExtendedPositionVector(arma::vec5 q) {
 
     arma::mat::fixed<4, 4> transform_matrix = A[0];
     for(int i = 1; i < CRAP_NUM_FRAMES; i++) {
-        transform_matrix *= A[i];
+        transform_matrix = transform_matrix * A[i];
     }
 
     arma::vec pn(4, arma::fill::zeros);
     pn(3) = 1;
 
     arma::vec p0 = transform_matrix * pn;
-
+    */
+    arma::vec p0(3,arma::fill::zeros);
+    p0(0) = cos(q(0))*(-0.13*cos(q(2))*sin(q(3)) - 0.13*sin(q(2))*cos(q(3)) + 0.095*cos(q(2)) + 0.095)*cos(q(1)) - 0.13*cos(q(0))*sin(q(1))*cos(q(2))*cos(q(3)) + (0.13*cos(q(0))*sin(q(3)) - 0.095*cos(q(0)))*sin(q(2))*sin(q(1));
+    p0(1) = sin(q(0))*(-0.13*cos(q(2))*sin(q(3)) - 0.13*sin(q(2))*cos(q(3)) + 0.095*cos(q(2)) + 0.095)*cos(q(1)) - 0.13*sin(q(0))*sin(q(1))*cos(q(2))*cos(q(3)) + (0.13*sin(q(0))*sin(q(3)) - 0.095*sin(q(0)))*sin(q(2))*sin(q(1));
+    p0(2) = ((-0.13*sin(q(3)) + 0.095)*cos(q(2)) - 0.13*sin(q(2))*cos(q(3)) + 0.095)*sin(q(1)) + 0.065 + (0.13*cos(q(2))*cos(q(3)) + (-0.13*sin(q(3)) + 0.095)*sin(q(2)))*cos(q(1));
     return p0;
 }

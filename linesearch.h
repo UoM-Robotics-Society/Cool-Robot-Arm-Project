@@ -60,7 +60,7 @@ class LineSearch {
     @param array of the angles of the 5 revolute joints.
     @returns true if in bounds
     */
-    bool InBoundsPos(arma::vec pos);
+    int InBoundsPos(arma::vec pos);
     int InBounds(arma::vec angles);
 
 // https://en.wikipedia.org/wiki/Golden-section_search

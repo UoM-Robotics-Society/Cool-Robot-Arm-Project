@@ -27,7 +27,7 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
             print_mat(Bi);
         }
         if (false) {
-            std::cout << "cost = ";
+            std::cout << "cost grad = ";
             std::cout << costVec[0] << " ";  
             std::cout << costVec[1] << " ";   
             std::cout << costVec[2] << " ";
@@ -35,7 +35,11 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
             std::cout << costVec[4] << std::endl;
         }
         P = -(Bi*costVec);
-        if (false) {
+        if(std::isnan(P(0))){
+            std::cout << "Error: X = Xp" << std::endl;
+            return X;
+        }
+        if (true) {
             // Debug
             std::cout << "P = ";
             std::cout << P[0] << " ";    
@@ -47,7 +51,6 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
         
         Xp = arm.GoldenSearch(X, P, mu);
         S = Xp - X;
-
         if (false) {
             //std::cout << "---------------------" << std::endl;
             arma::vec pos = fk.GetExtendedPositionVector(X);
@@ -153,12 +156,18 @@ int main (){
 
     x = 0.2;
     y = 0.1;
-    z = 0.1;
+    z = 0.2;
     arma::vec position;
     position << x << y << z << arma::endr;
-    print_vec(fktoo.GetExtendedPositionVector(start));
     std::cout << "---------------------" << std::endl;
-    std::cout << x << ", " << y << ", " << z << std::endl;
+    std::cout << "Goal: " << x << ", " << y << ", " << z << std::endl;
+    std::cout << "Goal in-bounds test: " << ls.InBoundsPos(position) << std::endl;
+    std::cout << "---------------------" << std::endl;
+    std::cout << "Starting motor angles: ";
+    print_vec(start);
+    std::cout << "Startng Coordinates: ";
+    print_vec(fktoo.GetExtendedPositionVector(start),3);
+    std::cout << "Start in-bounds test: " << ls.InBounds(start) << std::endl;
     arma::dmat end = BFGS(x, y, z, start);
     std::cout << "---------------------" << std::endl;
     std::cout << "Caluclated Motor Angles" << std::endl;
@@ -179,15 +188,7 @@ int main (){
     std::cout << pos[0] << std::endl;    
     std::cout << pos[1] << std::endl;    
     std::cout << pos[2] << std::endl;
-    std::cout << pos[3] << std::endl;
     std::cout << "---------------------" << std::endl;
-    std::cout << "In-bounds tests" << std::endl;
-    std::cout << ls.InBounds(end) << std::endl;
-    std::cout << ls.InBoundsPos(position) << std::endl;
-    std::cout << "---------------------" << std::endl;
-    std::cout << "Start pos" << std::endl;
-    std::cout << fktoo.GetExtendedPositionVector(start) << std::endl;
-
     std::cout << "Press Enter Key to Continue..." << std::endl;     
     std::cin.get();
     return 0;
