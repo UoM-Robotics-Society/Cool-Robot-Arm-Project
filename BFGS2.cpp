@@ -13,7 +13,7 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
     arma::vec Xp(5, arma::fill::zeros), P(5,arma::fill::zeros), S(5,arma::fill::zeros), Y(5,arma::fill::zeros);
     double A;
     arm.set_goal(x,y,z);
-    double mu = 0.1;
+    double mu = 0.0;
     ForwardKinematics fk = ForwardKinematics();
     double cost = 100;
     while (cost > 0.000001){
@@ -73,103 +73,6 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
             std::cout << Xp[4] << std::endl;
         }
 
-<<<<<<< Updated upstream
-    while (mu>0.0001){
-
-       for (int i=0;i<10;i++){
-            arma::vec costVec = arm.cost_function_gradient(X,0,mu);
-            P = -(Bi*costVec);
-
-            if (false) {
-                //std::cout << "---------------------" << std::endl;
-                arma::vec pos = fk.GetExtendedPositionVector(X);
-                std::cout << "";
-                std::cout << pos[0] << ",";  
-                std::cout << pos[1] << ","; 
-                std::cout << pos[2] << std::endl;
-            }
-            if (true) {
-                std::cout << "cost = ";
-                std::cout << costVec[0] << " ";  
-                std::cout << costVec[1] << " ";   
-                std::cout << costVec[2] << " ";
-                std::cout << costVec[3] << " ";
-                std::cout << costVec[4] << std::endl;
-
-                // Debug
-                std::cout << "P = ";
-                std::cout << P[0] << " ";    
-                std::cout << P[1] << " ";  
-                std::cout << P[2] << " ";
-                std::cout << P[3] << " ";
-                std::cout << P[4] << std::endl;
-            }
-            
-            Xp = arm.GoldenSearch(X, P, mu);
-            S = Xp - X;
-
-            if (false) {
-                std::cout << "X = ";
-                std::cout << X[0] << " ";    
-                std::cout << X[1] << " ";  
-                std::cout << X[2] << " ";
-                std::cout << X[3] << " ";
-                std::cout << X[4] << std::endl;
-                std::cout << "Xp = ";
-                std::cout << Xp[0] << " ";    
-                std::cout << Xp[1] << " ";  
-                std::cout << Xp[2] << " ";
-                std::cout << Xp[3] << " ";
-                std::cout << Xp[4] << std::endl;
-            }
-
-            arma::vec cost1 = arm.cost_function_gradient(Xp, 0, mu);
-            arma::vec cost2 = arm.cost_function_gradient(X,0, mu);      
-            if (false) {
-                std::cout << "Cost1: ";
-                std::cout << cost1[0] << " ";    
-                std::cout << cost1[1] << " ";    
-                std::cout << cost1[2] << " ";
-                std::cout << cost1[3] << " ";
-                std::cout << cost1[4] << std::endl; 
-
-                std::cout << "Cost2: ";
-                std::cout << cost2[0] << " ";    
-                std::cout << cost2[1] << " ";    
-                std::cout << cost2[2] << " ";
-                std::cout << cost2[3] << " ";
-                std::cout << cost2[4] << std::endl; 
-            }
-            Y = cost1 - cost2;
-
-            // https://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldfarb%E2%80%93Shanno_algorithm
-            // (((S.t()*Y.t() + Y.t()*Bi*Y)*(S*S.t()))/(arma::powmat((S.t()*Y.t()),2)))-(((Bi*Y*S.t())+(S*Y.t()*Bi))/(S.t()*Y));
-
-            arma::mat St = S.t();
-            double aa = arma::as_scalar(S.t() * Y);
-            //arma::mat Yt = Y.t();
-            arma::mat ab = Y.t() * Bi;
-            double ac = arma::as_scalar(ab * Y);
-            arma::mat ad = S * S.t();
-            double ae = aa + ac;
-            arma::mat a = ae * ad;
-
-            arma::mat ba = Bi * Y;
-            arma::mat bb = ba * S.t();
-            arma::mat bc = S * Y.t();
-            arma::mat bd = bc * Bi;
-            arma::mat b = bb + bd;
-
-            double c = arma::as_scalar(S.t() * Y);
-
-            double da = c * c;
-            arma::mat db = a * (1/da);
-            arma::mat dc = b * (1/c);
-            arma::mat d = db - dc;
-            Bi = Bi + d;
-            X=Xp;
-            count += 1;
-=======
         arma::vec cost1 = arm.cost_function_gradient(Xp, 0, mu);
         arma::vec cost2 = arm.cost_function_gradient(X,0, mu);      
         if (false) {
@@ -228,7 +131,6 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
         if (false) {
             std::cout << "Bi: " << std::endl;
             print_mat(Bi);
->>>>>>> Stashed changes
         }
         mu=mu* 0.9;  
     }
