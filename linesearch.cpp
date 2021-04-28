@@ -82,7 +82,7 @@ arma::vec LineSearch::cost_function_gradient(arma::vec5 q, double d, double MU) 
 
     double radius = sqrt(actual_x*actual_x + actual_y*actual_y);
 
-    bool chris = false;
+    bool chris = true;
 
     double dx_dq[] = {
         - 0.065*cos(q(0) + q(3) + q(1) + q(2)) + 0.065*cos(q(0) - q(3) - q(1) - q(2)) - 0.0475*sin(q(0) - q(1) - q(2)) - 0.0475*sin(q(0) + q(1) + q(2)) - 0.0475*sin(q(0) - q(1)) - 0.0475*sin(q(0) + q(1)),
@@ -124,10 +124,10 @@ arma::vec LineSearch::cost_function_gradient(arma::vec5 q, double d, double MU) 
     }
 
     if(chris){
-        grad(0) = -0.130*goal_x*cos(q0 - q3 - q1 - q2) + 0.0950*goal_x*sin(q0 - q1 - q2) + 0.0950*goal_x*sin(q0 - q1) - 0.130*goal_y*sin(q0 - q3 - q1 - q2) - 0.0950*goal_y*cos(q0 - q1 - q2) - 0.0950*goal_y*cos(q0 - q1) + 0.130*goal_x*cos(q0 + q3 + q1 + q2) + 0.0950*goal_x*sin(q0 + q1 + q2) + 0.0950*goal_x*sin(q0 + q1) + 0.130*goal_y*sin(q0 + q3 + q1 + q2) - 0.0950*goal_y*cos(q0 + q1 + q2) - 0.0950*goal_y*cos(q0 + q1);
-        grad(1) = 0.130*goal_y*sin(q0 + q3 + q1 + q2) - 0.0950*goal_y*cos(q0 + q1 + q2) - 0.0950*goal_y*cos(q0 + q1) + 0.130*goal_x*cos(q0 + q3 + q1 + q2) + 0.0950*goal_x*sin(q0 + q1 + q2) + 0.0950*goal_x*sin(q0 + q1) + 0.012350*cos(q1 + q2) + 0.130*goal_y*sin(q0 - q3 - q1 - q2) + 0.0950*goal_y*cos(q0 - q1 - q2) + 0.0950*goal_y*cos(q0 - q1) + 0.130*goal_x*cos(q0 - q3 - q1 - q2) - 0.0950*goal_x*sin(q0 - q1 - q2) - 0.0950*goal_x*sin(q0 - q1) - 0.01690*sin(q3 + q1 + q2) + 0.012350*cos(q1) + 0.26*goal_z*sin(q3 + q1 + q2) - 0.190*goal_z*cos(q1 + q2) - 0.190*goal_z*cos(q1);
-        grad(2) = 0.130*goal_y*sin(q0 + q3 + q1 + q2) - 0.0950*goal_y*cos(q0 + q1 + q2) + 0.130*goal_x*cos(q0 + q3 + q1 + q2) + 0.0950*goal_x*sin(q0 + q1 + q2) + 0.012350*cos(q1 + q2) + 0.130*goal_y*sin(q0 - q3 - q1 - q2) + 0.0950*goal_y*cos(q0 - q1 - q2) + 0.130*goal_x*cos(q0 - q3 - q1 - q2) - 0.0950*goal_x*sin(q0 - q1 - q2) - 0.01690*sin(q3 + q1 + q2) - 0.01805000000*sin(q2) - 0.02470000000*cos(q3 + q2) + 0.26*goal_z*sin(q3 + q1 + q2) - 0.190*goal_z*cos(q1 + q2);
-        grad(3) = 0.130*goal_y*sin(q0 + q3 + q1 + q2) + 0.130*goal_x*cos(q0 + q3 + q1 + q2) + 0.130*goal_y*sin(q0 - q3 - q1 - q2) + 0.130*goal_x*cos(q0 - q3 - q1 - q2) - 0.01690*sin(q3 + q1 + q2) - 0.02470000000*cos(q3 + q2) - 0.02470000000*cos(q3) + 0.26*goal_z*sin(q3 + q1 + q2);
+        grad(0) = -0.095*goal_y*cos(q0 + q1) + 0.13*goal_y*sin(q0 + q3 + q1 + q2) - 0.095*goal_y*cos(q0 + q1 + q2) - 0.095*goal_y*cos(q0 - q1) - 0.13*goal_y*sin(q0 - q3 - q1 - q2) - 0.095*goal_y*cos(q0 - q1 - q2) + 0.095*goal_x*sin(q0 - q1 - q2) + 0.095*goal_x*sin(q0 - q1) - 0.13*goal_x*cos(q0 - q3 - q1 - q2) + 0.095*goal_x*sin(q0 + q1) + 0.13*goal_x*cos(q0 + q3 + q1 + q2) + 0.095*goal_x*sin(q0 + q1 + q2);
+        grad(1) = -0.095*goal_y*cos(q0 + q1) + 0.13*goal_y*sin(q0 + q3 + q1 + q2) + 0.095*goal_y*cos(q0 - q1) + 0.13*goal_y*sin(q0 - q3 - q1 - q2) + 0.095*goal_y*cos(q0 - q1 - q2) + 0.012350*cos(q1) + 0.01235*cos(q1 + q2) - 0.190*goal_z*cos(q1) - 0.095*goal_y*cos(q0 + q1 + q2) - 0.01690*sin(q3 + q1 + q2) + 0.26*goal_z*sin(q3 + q1 + q2) - 0.19*goal_z*cos(q1 + q2) + 0.095*goal_x*sin(q0 + q1) - 0.095*goal_x*sin(q0 - q1) + 0.095*goal_x*sin(q0 + q1 + q2) - 0.095*goal_x*sin(q0 - q1 - q2) + 0.13*goal_x*cos(q0 - q3 - q1 - q2) + 0.13*goal_x*cos(q0 + q3 + q1 + q2);
+        grad(2) = 0.13*goal_y*sin(q0 + q3 + q1 + q2) + 0.13*goal_y*sin(q0 - q3 - q1 - q2) + 0.095*goal_y*cos(q0 - q1 - q2) - 0.01805*sin(q2) + 0.01235*cos(q1 + q2) - 0.095*goal_y*cos(q0 + q1 + q2) - 0.01690*sin(q3 + q1 + q2) + 0.26*goal_z*sin(q3 + q1 + q2) - 0.19*goal_z*cos(q1 + q2) - 0.02470*cos(q2 + q3) + 0.095*goal_x*sin(q0 + q1 + q2) - 0.095*goal_x*sin(q0 - q1 - q2) + 0.13*goal_x*cos(q0 - q3 - q1 - q2) + 0.13*goal_x*cos(q0 + q3 + q1 + q2);
+        grad(3) = 0.13*goal_y*sin(q0 + q3 + q1 + q2) + 0.13*goal_y*sin(q0 - q3 - q1 - q2) - 0.02470*cos(q3) - 0.01690*sin(q3 + q1 + q2) + 0.26*goal_z*sin(q3 + q1 + q2) - 0.02470*cos(q2 + q3) + 0.13*goal_x*cos(q0 - q3 - q1 - q2) + 0.13*goal_x*cos(q0 + q3 + q1 + q2);
         grad(4) = 0;
     }
     return grad;

@@ -154,9 +154,9 @@ int main (){
     start << 0.2 << 0.2 << 0.2 << 0.2 << 0 << arma::endr;
     double x, y, z = 0;
 
-    x = 0.2;
-    y = 0.1;
-    z = 0.2;
+    x = 0.3;
+    y = 0.0;
+    z = 0.15;
     arma::vec position;
     position << x << y << z << arma::endr;
     std::cout << "---------------------" << std::endl;
