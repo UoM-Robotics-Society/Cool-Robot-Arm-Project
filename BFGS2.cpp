@@ -22,7 +22,7 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
         while (cost > 0.000001){
             arma::vec costVec = arm.cost_function_gradient(X,0,mu);
             cost = arm.cost_function(X,0,mu);
-            if(true){
+            if(false){
                 std::cout << "Cost: " << cost << std::endl;
                 std::cout << "MU: " << mu << std::endl;
             }
@@ -30,7 +30,7 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
                 std::cout << "Bi: " << std::endl;
                 print_mat(Bi);
             }
-            if (true) {
+            if (false) {
                 std::cout << "cost grad = ";
                 std::cout << costVec[0] << " ";  
                 std::cout << costVec[1] << " ";   
@@ -43,7 +43,7 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
                 std::cout << "Error: X = Xp" << std::endl;
                 return X;
             }
-            if (true) {
+            if (false) {
                 // Debug
                 std::cout << "P = ";
                 std::cout << P[0] << " ";    
@@ -64,7 +64,7 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
                 std::cout << pos[1] << ","; 
                 std::cout << pos[2] << std::endl;
             }
-            if (true) {
+            if (false) {
                 std::cout << "X = ";
                 std::cout << X[0] << " ";    
                 std::cout << X[1] << " ";  
@@ -72,7 +72,7 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
                 std::cout << X[3] << " ";
                 std::cout << X[4] << std::endl;
             }
-            if (true) {
+            if (false) {
                 std::cout << "Xp = ";
                 std::cout << Xp[0] << " ";    
                 std::cout << Xp[1] << " ";  
@@ -176,13 +176,15 @@ int main (){
     std::cout << "Startng Coordinates: ";
     print_vec(fktoo.GetExtendedPositionVector(start),3);
     std::cout << "Start in-bounds test: " << ls.InBounds(start) << std::endl;
+    std::cout << "---------------------" << std::endl;
+    std::cout << "Running BFGS Algorithm..." << std::endl;
     arma::dmat end = BFGS(x, y, z, start);
     std::cout << "---------------------" << std::endl;
-    std::cout << "Caluclated Motor Angles" << std::endl;
-    std::cout << end[0] << std::endl;    
-    std::cout << end[1] << std::endl;    
-    std::cout << end[2] << std::endl;
-    std::cout << end[3] << std::endl;
+    std::cout << "Caluclated Motor Angles: ";
+    std::cout << end[0] << " ";    
+    std::cout << end[1] << " ";    
+    std::cout << end[2] << " ";
+    std::cout << end[3] << " ";
     std::cout << end[4] << std::endl;
     arma::vec::fixed<5> vmat = end.as_col();
     
@@ -192,10 +194,10 @@ int main (){
     
     arma::vec pos = fktoo.GetExtendedPositionVector(vmat);
     std::cout << "---------------------" << std::endl;
-    std::cout << "FK Calculated Position Based of Angles" << std::endl;
-    std::cout << pos[0] << std::endl;    
-    std::cout << pos[1] << std::endl;    
-    std::cout << pos[2] << std::endl;
+    std::cout << "FK Calculated Position Based off Angles: ";
+    std::cout << pos[0] << " ";    
+    std::cout << pos[1] << " ";    
+    std::cout << pos[2] << " ";
     std::cout << "---------------------" << std::endl;
     std::cout << "Press Enter Key to Continue..." << std::endl;     
     std::cin.get();

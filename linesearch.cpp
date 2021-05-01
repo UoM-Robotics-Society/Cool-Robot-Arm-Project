@@ -29,16 +29,6 @@ LineSearch::LineSearch(double r_inner, double r_outer, double h_max, double h_mi
     height_max = h_max;
     height_min = h_min;
 
-    // TODO assign max and min angles
-    //min_angle = {-arma::datum::pi, 0, -2*arma::datum::pi/3, -arma::datum::pi, arma::datum::pi};
-    //max_angle = {arma::datum::pi, arma::datum::pi, 2*arma::datum::pi/3, 0, arma::datum::pi};
-    /*
-    for(int i = 0; i < CRAP_NUM_REVOLUTE_FRAMES; i++) {
-        min_angle[i] = -arma::datum::pi;
-        max_angle[i] = arma::datum::pi;
-    } 
-    */
-
     fk = ForwardKinematics();
 }
 
@@ -62,7 +52,6 @@ double LineSearch::cost_function(arma::vec5 q, double d, double MU) {
         for(int i = 0; i < CRAP_NUM_REVOLUTE_FRAMES; i++) {
             cost -= MU * (log(max_angle[i] - q[i]) + log(q[i] - min_angle[i]));
         }
-        //cost += MU * (log(radius_outer - radius) + log(actual_z - height_min));
     }
     
     return cost;
@@ -79,71 +68,18 @@ arma::vec LineSearch::cost_function_gradient(arma::vec5 q, double d, double MU) 
     double actual_x = actual_coords(0);
     double actual_y = actual_coords(1);
     double actual_z = actual_coords(2);
-
-    double radius = sqrt(actual_x*actual_x + actual_y*actual_y);
-
-    bool chris = true;
-
-    double dx_dq[] = {
-        - 0.065*cos(q(0) + q(3) + q(1) + q(2)) + 0.065*cos(q(0) - q(3) - q(1) - q(2)) - 0.0475*sin(q(0) - q(1) - q(2)) - 0.0475*sin(q(0) + q(1) + q(2)) - 0.0475*sin(q(0) - q(1)) - 0.0475*sin(q(0) + q(1)),
-        - 0.065*cos(q(0) + q(3) + q(1) + q(2)) - 0.065*cos(q(0) - q(3) - q(1) - q(2)) + 0.0475*sin(q(0) - q(1) - q(2)) - 0.0475*sin(q(0) + q(1) + q(2)) + 0.0475*sin(q(0) - q(1)) - 0.0475*sin(q(0) + q(1)),
-        - 0.065*cos(q(0) + q(3) + q(1) + q(2)) - 0.065*cos(q(0) - q(3) - q(1) - q(2)) + 0.0475*sin(q(0) - q(1) - q(2)) - 0.0475*sin(q(0) + q(1) + q(2)),
-        - 0.065*cos(q(0) + q(3) + q(1) + q(2)) - 0.065*cos(q(0) - q(3) - q(1) - q(2)),
-        0
-    };
-
-    double dy_dq[] = {
-        0.065*sin(q(0) - q(3) - q(1) - q(2)) - 0.065*sin(q(0) + q(3) + q(1) + q(2)) + 0.0475*cos(q(0) + q(1) + q(2)) + 0.0475*cos(q(0) - q(1) - q(2)) + 0.0475*cos(q(0) + q(1)) + 0.0475*cos(q(0) - q(1)),
-        - 0.065*sin(q(0) - q(3) - q(1) - q(2)) - 0.065*sin(q(0) + q(3) + q(1) + q(2)) + 0.0475*cos(q(0) + q(1) + q(2)) - 0.0475*cos(q(0) - q(1) - q(2)) + 0.0475*cos(q(0) + q(1)) - 0.0475*cos(q(0) - q(1)),
-        - 0.065*sin(q(0) - q(3) - q(1) - q(2)) - 0.065*sin(q(0) + q(3) + q(1) + q(2)) + 0.0475*cos(q(0) + q(1) + q(2)) - 0.0475*cos(q(0) - q(1) - q(2)),
-        - 0.065*sin(q(0) - q(3) - q(1) - q(2)) - 0.065*sin(q(0) + q(3) + q(1) + q(2)),
-        0
-    };
-
-    double dz_dq[] = {
-        0,
-        - 0.13*sin(q(3) + q(1) + q(2)) + 0.095*cos(q(1) + q(2)) + 0.095*cos(q(1)),
-        - 0.13*sin(q(3) + q(1) + q(2)) + 0.095*cos(q(1) + q(2)),
-        - 0.13*sin(q(3) + q(1) + q(2)),
-        0
-    };
-
-    for(int i = 0; i < CRAP_NUM_REVOLUTE_FRAMES; i++) {
-        double a = -1/(max_angle[i] - q(i));
-        double b = 1/(q(i) - min_angle[i]);
-        double c = -1/(radius_outer - radius) * (1/radius * (actual_x*dx_dq[i] - actual_y*dy_dq[i]));
-        double d = 1/(radius - radius_inner) * (1/radius * (actual_x*dx_dq[i] - actual_y*dy_dq[i]));
-        double e = -1/(height_max - actual_z) * dz_dq[i];
-        double f = 1/(actual_z - height_min) * dz_dq[i];
-        grad(i) =
-            - 2 * (goal_x - actual_x) * dx_dq[i] - 2 * (goal_y - actual_y) * dy_dq[i] - 2 * (goal_z - actual_z) * dz_dq[i]
-            - MU * (a + b + c + d + e + f);
-        if (!USE_BOUNDS) {
-            grad(i) = - 2 * (goal_x - actual_x) * dx_dq[i] - 2 * (goal_y - actual_y) * dy_dq[i] - 2 * (goal_z - actual_z) * dz_dq[i];
-        }
-    }
-
-    if(chris){
-        //distance to goal
-        grad(0) = -0.095*goal_y*cos(q0 + q1) + 0.13*goal_y*sin(q0 + q3 + q1 + q2) - 0.095*goal_y*cos(q0 + q1 + q2) - 0.095*goal_y*cos(q0 - q1) - 0.13*goal_y*sin(q0 - q3 - q1 - q2) - 0.095*goal_y*cos(q0 - q1 - q2) + 0.095*goal_x*sin(q0 - q1 - q2) + 0.095*goal_x*sin(q0 - q1) - 0.13*goal_x*cos(q0 - q3 - q1 - q2) + 0.095*goal_x*sin(q0 + q1) + 0.13*goal_x*cos(q0 + q3 + q1 + q2) + 0.095*goal_x*sin(q0 + q1 + q2);
-        grad(1) = -0.095*goal_y*cos(q0 + q1) + 0.13*goal_y*sin(q0 + q3 + q1 + q2) + 0.095*goal_y*cos(q0 - q1) + 0.13*goal_y*sin(q0 - q3 - q1 - q2) + 0.095*goal_y*cos(q0 - q1 - q2) + 0.012350*cos(q1) + 0.01235*cos(q1 + q2) - 0.190*goal_z*cos(q1) - 0.095*goal_y*cos(q0 + q1 + q2) - 0.01690*sin(q3 + q1 + q2) + 0.26*goal_z*sin(q3 + q1 + q2) - 0.19*goal_z*cos(q1 + q2) + 0.095*goal_x*sin(q0 + q1) - 0.095*goal_x*sin(q0 - q1) + 0.095*goal_x*sin(q0 + q1 + q2) - 0.095*goal_x*sin(q0 - q1 - q2) + 0.13*goal_x*cos(q0 - q3 - q1 - q2) + 0.13*goal_x*cos(q0 + q3 + q1 + q2);
-        grad(2) = 0.13*goal_y*sin(q0 + q3 + q1 + q2) + 0.13*goal_y*sin(q0 - q3 - q1 - q2) + 0.095*goal_y*cos(q0 - q1 - q2) - 0.01805*sin(q2) + 0.01235*cos(q1 + q2) - 0.095*goal_y*cos(q0 + q1 + q2) - 0.01690*sin(q3 + q1 + q2) + 0.26*goal_z*sin(q3 + q1 + q2) - 0.19*goal_z*cos(q1 + q2) - 0.02470*cos(q2 + q3) + 0.095*goal_x*sin(q0 + q1 + q2) - 0.095*goal_x*sin(q0 - q1 - q2) + 0.13*goal_x*cos(q0 - q3 - q1 - q2) + 0.13*goal_x*cos(q0 + q3 + q1 + q2);
-        grad(3) = 0.13*goal_y*sin(q0 + q3 + q1 + q2) + 0.13*goal_y*sin(q0 - q3 - q1 - q2) - 0.02470*cos(q3) - 0.01690*sin(q3 + q1 + q2) + 0.26*goal_z*sin(q3 + q1 + q2) - 0.02470*cos(q2 + q3) + 0.13*goal_x*cos(q0 - q3 - q1 - q2) + 0.13*goal_x*cos(q0 + q3 + q1 + q2);
-        grad(4) = 0;
-        //motor angle limits
-        if(USE_BOUNDS){
-            for(int i = 0; i < CRAP_NUM_REVOLUTE_FRAMES; i++) {
-                double a = -1/(max_angle[i] - q(i));
-                double b = 1/(q(i) - min_angle[i]);
-                grad(i) = grad(i) - MU*(a + b);
-            }
-            /*//outer radius (as sphere)
-            grad(2) = grad(2) + MU*(-0.009025*sin(q2) - 0.01235*cos(q3 + q2))/(sqrt(-0.02470*sin(q3) + 0.01805*cos(q2) + 0.03495 - 0.02470*sin(q3 + q2))*(-1.*radius_outer + sqrt(0.03495 - 0.0247*sin(q3) + 0.01805*cos(q2) - 0.02470*sin(q3 + q2))));
-            grad(3) = grad(3) + -0.01235*MU*(cos(q3 + q2) + cos(q3))/((-radius_outer + sqrt(0.03495 - 0.0247*sin(q3) + 0.01805*cos(q2) - 0.02470*sin(q3 + q2)))*sqrt(-0.02470*sin(q3) + 0.01805*cos(q2) + 0.03495 - 0.02470*sin(q3 + q2)));
-            //lower height limit (the floor)
-            grad(1) = grad(1) + MU*(0.13*sin(q3 + q1 + q2) - 0.095*cos(q1 + q2) - 0.095*cos(q1))/(height_max - 0.065 - 0.13*cos(q3 + q1 + q2) - 0.095*sin(q1 + q2) - 0.095*sin(q1));
-            grad(2) = grad(2) + MU*(0.13*sin(q3 + q1 + q2) - 0.095*cos(q1 + q2))/(height_max - 0.065 - 0.13*cos(q3 + q1 + q2) - 0.095*sin(q1 + q2) - 0.095*sin(q1));
-            grad(3) = grad(3) + 0.13*MU*sin(q3 + q1 + q2)/(height_max - 0.065 - 0.13*cos(q3 + q1 + q2) - 0.095*sin(q1 + q2) - 0.095*sin(q1));*/
+    //distance to goal
+    grad(0) = -0.095*goal_y*cos(q0 + q1) + 0.13*goal_y*sin(q0 + q3 + q1 + q2) - 0.095*goal_y*cos(q0 + q1 + q2) - 0.095*goal_y*cos(q0 - q1) - 0.13*goal_y*sin(q0 - q3 - q1 - q2) - 0.095*goal_y*cos(q0 - q1 - q2) + 0.095*goal_x*sin(q0 - q1 - q2) + 0.095*goal_x*sin(q0 - q1) - 0.13*goal_x*cos(q0 - q3 - q1 - q2) + 0.095*goal_x*sin(q0 + q1) + 0.13*goal_x*cos(q0 + q3 + q1 + q2) + 0.095*goal_x*sin(q0 + q1 + q2);
+    grad(1) = -0.095*goal_y*cos(q0 + q1) + 0.13*goal_y*sin(q0 + q3 + q1 + q2) + 0.095*goal_y*cos(q0 - q1) + 0.13*goal_y*sin(q0 - q3 - q1 - q2) + 0.095*goal_y*cos(q0 - q1 - q2) + 0.012350*cos(q1) + 0.01235*cos(q1 + q2) - 0.190*goal_z*cos(q1) - 0.095*goal_y*cos(q0 + q1 + q2) - 0.01690*sin(q3 + q1 + q2) + 0.26*goal_z*sin(q3 + q1 + q2) - 0.19*goal_z*cos(q1 + q2) + 0.095*goal_x*sin(q0 + q1) - 0.095*goal_x*sin(q0 - q1) + 0.095*goal_x*sin(q0 + q1 + q2) - 0.095*goal_x*sin(q0 - q1 - q2) + 0.13*goal_x*cos(q0 - q3 - q1 - q2) + 0.13*goal_x*cos(q0 + q3 + q1 + q2);
+    grad(2) = 0.13*goal_y*sin(q0 + q3 + q1 + q2) + 0.13*goal_y*sin(q0 - q3 - q1 - q2) + 0.095*goal_y*cos(q0 - q1 - q2) - 0.01805*sin(q2) + 0.01235*cos(q1 + q2) - 0.095*goal_y*cos(q0 + q1 + q2) - 0.01690*sin(q3 + q1 + q2) + 0.26*goal_z*sin(q3 + q1 + q2) - 0.19*goal_z*cos(q1 + q2) - 0.02470*cos(q2 + q3) + 0.095*goal_x*sin(q0 + q1 + q2) - 0.095*goal_x*sin(q0 - q1 - q2) + 0.13*goal_x*cos(q0 - q3 - q1 - q2) + 0.13*goal_x*cos(q0 + q3 + q1 + q2);
+    grad(3) = 0.13*goal_y*sin(q0 + q3 + q1 + q2) + 0.13*goal_y*sin(q0 - q3 - q1 - q2) - 0.02470*cos(q3) - 0.01690*sin(q3 + q1 + q2) + 0.26*goal_z*sin(q3 + q1 + q2) - 0.02470*cos(q2 + q3) + 0.13*goal_x*cos(q0 - q3 - q1 - q2) + 0.13*goal_x*cos(q0 + q3 + q1 + q2);
+    grad(4) = 0;
+    //motor angle limits
+    if(USE_BOUNDS){
+        for(int i = 0; i < CRAP_NUM_REVOLUTE_FRAMES; i++) {
+            double a = -1/(max_angle[i] - q(i));
+            double b = 1/(q(i) - min_angle[i]);
+            grad(i) = grad(i) - MU*(a + b);
         }
     }
     return grad;
@@ -154,16 +90,15 @@ int LineSearch::InBoundsPos(arma::vec pos) {
     double actual_y = pos(1);
     double actual_z = pos(2);
     double radius = sqrt(pow(actual_x,2) + pow(actual_y,2) + pow(actual_z - 0.065,2));
-    if(USE_BOUNDS){
-        //if(radius < radius_inner){
-        //    return 3;
-        //}
-    }
+    double radius2 = sqrt(pow(actual_x,2) + pow(actual_y,2));
     if (radius > radius_outer) {
         return 1;
     }
-    if (actual_z < height_min) {
+    else if (actual_z < height_min) {
         return 2;
+    }
+    else if (radius2 < radius_inner && actual_z < 0.2){
+        return 3;
     }
     return 0;
 }
@@ -177,12 +112,9 @@ int LineSearch::InBounds(arma::vec angles) {
     if(USE_BOUNDS){
         for (int i = 0; i < 5; i++) {
             if (angles[i] > max_angle[i] || angles[i] < min_angle[i]) {
-                return i+4;
+                return i+3;
             }
         }
-        //if(radius < radius_inner){
-        //    return 3;
-        //}
     }
     if (radius > radius_outer) {
         return 1;
@@ -228,14 +160,14 @@ arma::vec LineSearch::GoldenSearch(arma::vec current_pos, arma::vec direction, d
         x_max = x_max + dir_inc;
         dir_count += 1;
     }
-    std::cout << InBounds(x_max) << std::endl;
+    //std::cout << InBounds(x_max) << std::endl;
     if (dir_count == 1) {
         std::cout << "wah" << std::endl;
     }
     while (InBounds(x_max) != 0) {
          x_max = x_max - dir_inc * 0.5;
     }
-    std::cout << InBounds(x_max) << std::endl;
+    //std::cout << InBounds(x_max) << std::endl;
     //std::cout << dir_count << std::endl;
     //   for (int i = 0; i < 5; i++) {
     //     x_max[i] = (direction[i] >= 0) ?  this->max_angle[i] : this->min_angle[i];
