@@ -9,26 +9,28 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
 
     int count = 0;
     LineSearch arm(0.057,0.365,0.430,0);
-    arma::dmat Bi(5,5,arma::fill::eye);
+    arma::dmat Bii(5,5,arma::fill::eye);
+    arma::dmat Bi = Bii;
     arma::vec Xp(5, arma::fill::zeros), P(5,arma::fill::zeros), S(5,arma::fill::zeros), Y(5,arma::fill::zeros);
     double A;
     arm.set_goal(x,y,z);
-    double mu = 100;
+    double mu = 1000;
     ForwardKinematics fk = ForwardKinematics();
-    double cost = 100;
-    while(mu > 0.0000001){
-        cost = arm.cost_function(X,0,mu);
-        for(int i = 0; i < 10 ; i++){
+    while(mu > 0.000000000001){
+        double costdiff = 100;
+        double cost = 100;
+        while (cost > 0.000001){
             arma::vec costVec = arm.cost_function_gradient(X,0,mu);
             cost = arm.cost_function(X,0,mu);
             if(true){
                 std::cout << "Cost: " << cost << std::endl;
+                std::cout << "MU: " << mu << std::endl;
             }
             if (false) {
                 std::cout << "Bi: " << std::endl;
                 print_mat(Bi);
             }
-            if (false) {
+            if (true) {
                 std::cout << "cost grad = ";
                 std::cout << costVec[0] << " ";  
                 std::cout << costVec[1] << " ";   
@@ -41,7 +43,7 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
                 std::cout << "Error: X = Xp" << std::endl;
                 return X;
             }
-            if (false) {
+            if (true) {
                 // Debug
                 std::cout << "P = ";
                 std::cout << P[0] << " ";    
@@ -52,6 +54,7 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
             }
             
             Xp = arm.GoldenSearch(X, P, mu);
+            costdiff = abs(arm.cost_function(X,0,mu) - arm.cost_function(Xp,0,mu));
             S = Xp - X;
             if (false) {
                 //std::cout << "---------------------" << std::endl;
@@ -61,7 +64,7 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
                 std::cout << pos[1] << ","; 
                 std::cout << pos[2] << std::endl;
             }
-            if (false) {
+            if (true) {
                 std::cout << "X = ";
                 std::cout << X[0] << " ";    
                 std::cout << X[1] << " ";  
@@ -69,7 +72,7 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
                 std::cout << X[3] << " ";
                 std::cout << X[4] << std::endl;
             }
-            if (false) {
+            if (true) {
                 std::cout << "Xp = ";
                 std::cout << Xp[0] << " ";    
                 std::cout << Xp[1] << " ";  
@@ -137,13 +140,14 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
                 std::cout << "Bi: " << std::endl;
                 print_mat(Bi);
             }
+            if(count > 50){cost = 0;}
         }
-        //arma::vec good;
-        //good << 0.540419489324968 << 0.334426881574699 << 0.658670308915048 << 0.600956360426415 << 0 << arma::endr;
-        //std::cout << arm.cost_function(good,0,mu) << std::endl;
-        //std::cout << arm.cost_function_gradient(good,0,mu) << std::endl;
-        mu = mu * 0.9;
+        mu = mu*0.9;
     }
+    //arma::vec good;
+    //good << 0.540419489324968 << 0.334426881574699 << 0.658670308915048 << 0.600956360426415 << 0 << arma::endr;
+    //std::cout << arm.cost_function(good,0,mu) << std::endl;
+    //std::cout << arm.cost_function_gradient(good,0,mu) << std::endl;
     return X;
 }
 
@@ -158,7 +162,7 @@ int main (){
     start << 0.2 << 0.2 << 0.2 << 0.2 << 0 << arma::endr;
     double x, y, z = 0;
 
-    x = 0.2;
+    x = 0.1;
     y = 0.1;
     z = 0.2;
     arma::vec position;

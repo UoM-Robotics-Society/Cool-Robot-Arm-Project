@@ -54,15 +54,15 @@ double LineSearch::cost_function(arma::vec5 q, double d, double MU) {
     double actual_y = actual_coords(1);
     double actual_z = actual_coords(2);
 
-    double radius = sqrt(actual_x*actual_x + actual_y*actual_y);
+    double radius = sqrt(pow(actual_x,2) + pow(actual_y,2) + pow(actual_z - 0.065,2));
 
     double cost = pow(goal_x - actual_x, 2) + pow(goal_y - actual_y, 2) + pow(goal_z - actual_z, 2);
     
     if (USE_BOUNDS) {
         for(int i = 0; i < CRAP_NUM_REVOLUTE_FRAMES; i++) {
-            cost += MU * (log(max_angle[i] - q[i]) + log(q[i] - min_angle[i]));
+            cost -= MU * (log(max_angle[i] - q[i]) + log(q[i] - min_angle[i]));
         }
-        cost += MU * (log(radius_outer - radius) + log(radius - radius_inner) + log(height_max - actual_z) + log(actual_z - height_min));
+        //cost += MU * (log(radius_outer - radius) + log(actual_z - height_min));
     }
     
     return cost;
@@ -124,11 +124,27 @@ arma::vec LineSearch::cost_function_gradient(arma::vec5 q, double d, double MU) 
     }
 
     if(chris){
-        grad(0) = -0.130*goal_x*cos(q0 - q3 - q1 - q2) + 0.0950*goal_x*sin(q0 - q1 - q2) + 0.0950*goal_x*sin(q0 - q1) - 0.130*goal_y*sin(q0 - q3 - q1 - q2) - 0.0950*goal_y*cos(q0 - q1 - q2) - 0.0950*goal_y*cos(q0 - q1) + 0.130*goal_x*cos(q0 + q3 + q1 + q2) + 0.0950*goal_x*sin(q0 + q1 + q2) + 0.0950*goal_x*sin(q0 + q1) + 0.130*goal_y*sin(q0 + q3 + q1 + q2) - 0.0950*goal_y*cos(q0 + q1 + q2) - 0.0950*goal_y*cos(q0 + q1);
-        grad(1) = 0.130*goal_y*sin(q0 + q3 + q1 + q2) - 0.0950*goal_y*cos(q0 + q1 + q2) - 0.0950*goal_y*cos(q0 + q1) + 0.130*goal_x*cos(q0 + q3 + q1 + q2) + 0.0950*goal_x*sin(q0 + q1 + q2) + 0.0950*goal_x*sin(q0 + q1) + 0.012350*cos(q1 + q2) + 0.130*goal_y*sin(q0 - q3 - q1 - q2) + 0.0950*goal_y*cos(q0 - q1 - q2) + 0.0950*goal_y*cos(q0 - q1) + 0.130*goal_x*cos(q0 - q3 - q1 - q2) - 0.0950*goal_x*sin(q0 - q1 - q2) - 0.0950*goal_x*sin(q0 - q1) - 0.01690*sin(q3 + q1 + q2) + 0.012350*cos(q1) + 0.26*goal_z*sin(q3 + q1 + q2) - 0.190*goal_z*cos(q1 + q2) - 0.190*goal_z*cos(q1);
-        grad(2) = 0.130*goal_y*sin(q0 + q3 + q1 + q2) - 0.0950*goal_y*cos(q0 + q1 + q2) + 0.130*goal_x*cos(q0 + q3 + q1 + q2) + 0.0950*goal_x*sin(q0 + q1 + q2) + 0.012350*cos(q1 + q2) + 0.130*goal_y*sin(q0 - q3 - q1 - q2) + 0.0950*goal_y*cos(q0 - q1 - q2) + 0.130*goal_x*cos(q0 - q3 - q1 - q2) - 0.0950*goal_x*sin(q0 - q1 - q2) - 0.01690*sin(q3 + q1 + q2) - 0.01805000000*sin(q2) - 0.02470000000*cos(q3 + q2) + 0.26*goal_z*sin(q3 + q1 + q2) - 0.190*goal_z*cos(q1 + q2);
-        grad(3) = 0.130*goal_y*sin(q0 + q3 + q1 + q2) + 0.130*goal_x*cos(q0 + q3 + q1 + q2) + 0.130*goal_y*sin(q0 - q3 - q1 - q2) + 0.130*goal_x*cos(q0 - q3 - q1 - q2) - 0.01690*sin(q3 + q1 + q2) - 0.02470000000*cos(q3 + q2) - 0.02470000000*cos(q3) + 0.26*goal_z*sin(q3 + q1 + q2);
+        //distance to goal
+        grad(0) = -0.095*goal_y*cos(q0 + q1) + 0.13*goal_y*sin(q0 + q3 + q1 + q2) - 0.095*goal_y*cos(q0 + q1 + q2) - 0.095*goal_y*cos(q0 - q1) - 0.13*goal_y*sin(q0 - q3 - q1 - q2) - 0.095*goal_y*cos(q0 - q1 - q2) + 0.095*goal_x*sin(q0 - q1 - q2) + 0.095*goal_x*sin(q0 - q1) - 0.13*goal_x*cos(q0 - q3 - q1 - q2) + 0.095*goal_x*sin(q0 + q1) + 0.13*goal_x*cos(q0 + q3 + q1 + q2) + 0.095*goal_x*sin(q0 + q1 + q2);
+        grad(1) = -0.095*goal_y*cos(q0 + q1) + 0.13*goal_y*sin(q0 + q3 + q1 + q2) + 0.095*goal_y*cos(q0 - q1) + 0.13*goal_y*sin(q0 - q3 - q1 - q2) + 0.095*goal_y*cos(q0 - q1 - q2) + 0.012350*cos(q1) + 0.01235*cos(q1 + q2) - 0.190*goal_z*cos(q1) - 0.095*goal_y*cos(q0 + q1 + q2) - 0.01690*sin(q3 + q1 + q2) + 0.26*goal_z*sin(q3 + q1 + q2) - 0.19*goal_z*cos(q1 + q2) + 0.095*goal_x*sin(q0 + q1) - 0.095*goal_x*sin(q0 - q1) + 0.095*goal_x*sin(q0 + q1 + q2) - 0.095*goal_x*sin(q0 - q1 - q2) + 0.13*goal_x*cos(q0 - q3 - q1 - q2) + 0.13*goal_x*cos(q0 + q3 + q1 + q2);
+        grad(2) = 0.13*goal_y*sin(q0 + q3 + q1 + q2) + 0.13*goal_y*sin(q0 - q3 - q1 - q2) + 0.095*goal_y*cos(q0 - q1 - q2) - 0.01805*sin(q2) + 0.01235*cos(q1 + q2) - 0.095*goal_y*cos(q0 + q1 + q2) - 0.01690*sin(q3 + q1 + q2) + 0.26*goal_z*sin(q3 + q1 + q2) - 0.19*goal_z*cos(q1 + q2) - 0.02470*cos(q2 + q3) + 0.095*goal_x*sin(q0 + q1 + q2) - 0.095*goal_x*sin(q0 - q1 - q2) + 0.13*goal_x*cos(q0 - q3 - q1 - q2) + 0.13*goal_x*cos(q0 + q3 + q1 + q2);
+        grad(3) = 0.13*goal_y*sin(q0 + q3 + q1 + q2) + 0.13*goal_y*sin(q0 - q3 - q1 - q2) - 0.02470*cos(q3) - 0.01690*sin(q3 + q1 + q2) + 0.26*goal_z*sin(q3 + q1 + q2) - 0.02470*cos(q2 + q3) + 0.13*goal_x*cos(q0 - q3 - q1 - q2) + 0.13*goal_x*cos(q0 + q3 + q1 + q2);
         grad(4) = 0;
+        //motor angle limits
+        if(USE_BOUNDS){
+            for(int i = 0; i < CRAP_NUM_REVOLUTE_FRAMES; i++) {
+                double a = -1/(max_angle[i] - q(i));
+                double b = 1/(q(i) - min_angle[i]);
+                grad(i) = grad(i) - MU*(a + b);
+            }
+            /*//outer radius (as sphere)
+            grad(2) = grad(2) + MU*(-0.009025*sin(q2) - 0.01235*cos(q3 + q2))/(sqrt(-0.02470*sin(q3) + 0.01805*cos(q2) + 0.03495 - 0.02470*sin(q3 + q2))*(-1.*radius_outer + sqrt(0.03495 - 0.0247*sin(q3) + 0.01805*cos(q2) - 0.02470*sin(q3 + q2))));
+            grad(3) = grad(3) + -0.01235*MU*(cos(q3 + q2) + cos(q3))/((-radius_outer + sqrt(0.03495 - 0.0247*sin(q3) + 0.01805*cos(q2) - 0.02470*sin(q3 + q2)))*sqrt(-0.02470*sin(q3) + 0.01805*cos(q2) + 0.03495 - 0.02470*sin(q3 + q2)));
+            //lower height limit (the floor)
+            grad(1) = grad(1) + MU*(0.13*sin(q3 + q1 + q2) - 0.095*cos(q1 + q2) - 0.095*cos(q1))/(height_max - 0.065 - 0.13*cos(q3 + q1 + q2) - 0.095*sin(q1 + q2) - 0.095*sin(q1));
+            grad(2) = grad(2) + MU*(0.13*sin(q3 + q1 + q2) - 0.095*cos(q1 + q2))/(height_max - 0.065 - 0.13*cos(q3 + q1 + q2) - 0.095*sin(q1 + q2) - 0.095*sin(q1));
+            grad(3) = grad(3) + 0.13*MU*sin(q3 + q1 + q2)/(height_max - 0.065 - 0.13*cos(q3 + q1 + q2) - 0.095*sin(q1 + q2) - 0.095*sin(q1));*/
+        }
     }
     return grad;
 }
@@ -137,11 +153,11 @@ int LineSearch::InBoundsPos(arma::vec pos) {
     double actual_x = pos(0);
     double actual_y = pos(1);
     double actual_z = pos(2);
-    double radius = sqrt(pow(actual_x,2) + pow(actual_y,2));
+    double radius = sqrt(pow(actual_x,2) + pow(actual_y,2) + pow(actual_z - 0.065,2));
     if(USE_BOUNDS){
-        if(radius < radius_inner){
-            return 3;
-        }
+        //if(radius < radius_inner){
+        //    return 3;
+        //}
     }
     if (radius > radius_outer) {
         return 1;
@@ -157,16 +173,16 @@ int LineSearch::InBounds(arma::vec angles) {
     double actual_x = actual_coords(0);
     double actual_y = actual_coords(1);
     double actual_z = actual_coords(2);
-    double radius = sqrt(pow(actual_x,2) + pow(actual_y,2));
+    double radius = sqrt(pow(actual_x,2) + pow(actual_y,2) + pow(actual_z - 0.065,2));
     if(USE_BOUNDS){
         for (int i = 0; i < 5; i++) {
             if (angles[i] > max_angle[i] || angles[i] < min_angle[i]) {
-                return 4;
+                return i+4;
             }
         }
-        if(radius < radius_inner){
-            return 3;
-        }
+        //if(radius < radius_inner){
+        //    return 3;
+        //}
     }
     if (radius > radius_outer) {
         return 1;
@@ -197,7 +213,7 @@ arma::vec LineSearch::GoldenSearch(arma::vec current_pos, arma::vec direction, d
     arma::vec dir_norm = arma::normalise(direction);
     float tolerance = 0.0000001;
     float tau = 2 / (1 + sqrt(5));
-    float dir_step = 0.01;
+    float dir_step = 0.0001;
     arma::vec x_min = current_pos;
     arma::vec x_max = arma::vec::fixed<5>();
     arma::vec start_min = x_min;
@@ -220,7 +236,7 @@ arma::vec LineSearch::GoldenSearch(arma::vec current_pos, arma::vec direction, d
          x_max = x_max - dir_inc * 0.5;
     }
     std::cout << InBounds(x_max) << std::endl;
-    std::cout << dir_count << std::endl;
+    //std::cout << dir_count << std::endl;
     //   for (int i = 0; i < 5; i++) {
     //     x_max[i] = (direction[i] >= 0) ?  this->max_angle[i] : this->min_angle[i];
     //   }
