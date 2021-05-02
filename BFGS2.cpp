@@ -4,19 +4,22 @@
 #include <cmath>
 #include "linesearch.h"
 #include "forward_kinematics.h"
-
+#include <cstdlib>
+#include <ctime>
 arma::vec BFGS (double x, double y, double z, arma::vec X){
 
     int count = 0;
     LineSearch arm(0.057,0.365,0.430,0);
     arma::dmat Bii(5,5,arma::fill::eye);
     arma::dmat Bi = Bii;
+    arma::vec zeros(5, arma::fill::zeros);
     arma::vec Xp(5, arma::fill::zeros), P(5,arma::fill::zeros), S(5,arma::fill::zeros), Y(5,arma::fill::zeros);
     double A;
     arm.set_goal(x,y,z);
-    double mu = 1000;
+    double mu = 0.00;
     ForwardKinematics fk = ForwardKinematics();
-    while(mu > 0.000000000001){
+    int local_min_count = 0;
+    while(true){
         double costdiff = 100;
         double cost = 100;
         while (cost > 0.000001){
@@ -39,10 +42,6 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
                 std::cout << costVec[4] << std::endl;
             }
             P = -(Bi*costVec);
-            if(std::isnan(P(0))){
-                std::cout << "Error: X = Xp" << std::endl;
-                return X;
-            }
             if (false) {
                 // Debug
                 std::cout << "P = ";
@@ -53,6 +52,31 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
                 std::cout << P[4] << std::endl;
             }
             
+            if(std::isnan(P(0))){
+                if(local_min_count > 10){
+                    std::cout << "Stuck in over 10 local minima" << std::endl;
+                    return X;
+                }
+                else{
+                    local_min_count++;
+                    std::cout << "Error: Local minima after " << local_min_count << " attempts" << std::endl;
+                    float q[5];
+                    std::cout << "Restarting from ";
+                    for(int i = 0; i<5;i++){
+                        q[i] = arm.min_angle[i] + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(arm.max_angle[i]-arm.min_angle[i])));
+                        X(i) = q[i];
+                        std::cout << q[i] << " ";
+                    }
+                    std::cout << std::endl;
+                    mu = 0;
+                    Bi = Bii;
+                    Xp = zeros;
+                    P = zeros; 
+                    S = zeros;
+                    Y = zeros;
+                    break;
+                }
+            }
             Xp = arm.GoldenSearch(X, P, mu);
             costdiff = abs(arm.cost_function(X,0,mu) - arm.cost_function(Xp,0,mu));
             S = Xp - X;
@@ -83,7 +107,7 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
 
             arma::vec cost1 = arm.cost_function_gradient(Xp, 0, mu);
             arma::vec cost2 = arm.cost_function_gradient(X,0, mu);      
-            if (false) {
+            if (true) {
                 std::cout << "Cost1: ";
                 std::cout << cost1[0] << " ";    
                 std::cout << cost1[1] << " ";    
@@ -142,7 +166,12 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
             }
             if(count > 50){cost = 0;}
         }
-        mu = mu*0.9;
+        if(arm.dist_to_goal(X,0) > 0.000001){
+            mu = mu*0.9;
+        }
+        else{
+            return X;
+        }
     }
     //arma::vec good;
     //good << 0.540419489324968 << 0.334426881574699 << 0.658670308915048 << 0.600956360426415 << 0 << arma::endr;
@@ -159,12 +188,14 @@ int main (){
     arma::vec yeet;
     yeet << 0 << 0 << 0 << 0 << 0 << arma::endr;
     arma::vec start;
-    start << 0.2 << 0.2 << 0.2 << 0.2 << 0 << arma::endr;
+    start << 0.3218 << 1.03 << -1.48 << 0.5191 << 0.0 << arma::endr;
     double x, y, z = 0;
 
-    x = 0.1;
+    srand (static_cast <unsigned> (time(0)));
+
+    x = 0.3;
     y = 0.1;
-    z = 0.2;
+    z = 0.0;
     arma::vec position;
     position << x << y << z << arma::endr;
     std::cout << "---------------------" << std::endl;
@@ -197,7 +228,7 @@ int main (){
     std::cout << "FK Calculated Position Based off Angles: ";
     std::cout << pos[0] << " ";    
     std::cout << pos[1] << " ";    
-    std::cout << pos[2] << " ";
+    std::cout << pos[2] << std::endl;
     std::cout << "---------------------" << std::endl;
     std::cout << "Press Enter Key to Continue..." << std::endl;     
     std::cin.get();

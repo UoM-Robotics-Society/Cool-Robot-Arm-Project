@@ -35,6 +35,8 @@ ForwardKinematics::ForwardKinematics() {
 }
 
 arma::vec ForwardKinematics::GetExtendedPositionVector(arma::vec5 q) {
+    q(1) = q(1) + arma::datum::pi / 2;
+    q(3) = q(3) - arma::datum::pi / 2;
     /*arma::vec5 q_copy = arma::vec5(q);
     // double q_copy[CRAP_NUM_REVOLUTE_FRAMES];
     // memcpy(q_copy, q, CRAP_NUM_REVOLUTE_FRAMES * sizeof(int));

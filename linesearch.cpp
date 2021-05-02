@@ -4,7 +4,7 @@
 
 #include "linesearch.h"
 
-#define USE_BOUNDS true
+#define USE_BOUNDS false
 
 void print_mat(arma::mat mat, int m, int n) {
     for (int i = 0; i < m; i++) {
@@ -57,12 +57,23 @@ double LineSearch::cost_function(arma::vec5 q, double d, double MU) {
     return cost;
 }
 
+double LineSearch::dist_to_goal(arma::vec5 q, double d) {
+    arma::vec actual_coords = fk.GetExtendedPositionVector(q);
+    double actual_x = actual_coords(0);
+    double actual_y = actual_coords(1);
+    double actual_z = actual_coords(2);
+
+    double cost = pow(goal_x - actual_x, 2) + pow(goal_y - actual_y, 2) + pow(goal_z - actual_z, 2);
+
+    return cost;
+}
+
 arma::vec LineSearch::cost_function_gradient(arma::vec5 q, double d, double MU) {
     arma::vec grad(5, arma::fill::zeros);
     double q0 = q(0);
-    double q1 = q(1);
+    double q1 = q(1) + arma::datum::pi / 2;;
     double q2 = q(2);
-    double q3 = q(3);
+    double q3 = q(3) - arma::datum::pi / 2;;
     double q4 = q(4);
     arma::vec actual_coords = fk.GetExtendedPositionVector(q);
     double actual_x = actual_coords(0);
@@ -143,7 +154,7 @@ int LineSearch::InBounds(arma::vec angles) {
 arma::vec LineSearch::GoldenSearch(arma::vec current_pos, arma::vec direction, double mu) {
     // CONSTANTS
     arma::vec dir_norm = arma::normalise(direction);
-    float tolerance = 0.0000001;
+    float tolerance = 0.00000001;
     float tau = 2 / (1 + sqrt(5));
     float dir_step = 0.0001;
     arma::vec x_min = current_pos;

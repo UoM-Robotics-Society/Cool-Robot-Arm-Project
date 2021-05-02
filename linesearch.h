@@ -14,12 +14,13 @@ class LineSearch {
     double radius_inner, radius_outer;
     double height_max, height_min;
 
-    double min_angle[CRAP_NUM_REVOLUTE_FRAMES] = {-arma::datum::pi, -arma::datum::pi/2, -2*arma::datum::pi/3,   -arma::datum::pi/2,   -arma::datum::pi};
-    double max_angle[CRAP_NUM_REVOLUTE_FRAMES] = {arma::datum::pi,  arma::datum::pi/2,  2*arma::datum::pi/3,    arma::datum::pi/2,    arma::datum::pi};
-
+    
     ForwardKinematics fk;
 
     public:
+    double min_angle[CRAP_NUM_REVOLUTE_FRAMES] = {-arma::datum::pi, -arma::datum::pi/2, -2*arma::datum::pi/3,   -arma::datum::pi/2,   -arma::datum::pi};
+    double max_angle[CRAP_NUM_REVOLUTE_FRAMES] = {arma::datum::pi,  arma::datum::pi/2,  2*arma::datum::pi/3,    arma::datum::pi/2,    arma::datum::pi};
+
     /*
     Initialize line search.
     TODO improve documentation here
@@ -45,7 +46,7 @@ class LineSearch {
     @returns the value of the cost function.
     */
     double cost_function(arma::vec5 q, double d, double MU);
-
+    double dist_to_goal(arma::vec5 q, double d);
     /*
     Calculate the gradient of the cost function with respect
     to the angles of the five revolute joints.
