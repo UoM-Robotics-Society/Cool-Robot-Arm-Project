@@ -4,7 +4,7 @@
 
 #include "linesearch.h"
 
-#define USE_BOUNDS false
+#define USE_BOUNDS true
 
 void print_mat(arma::mat mat, int m, int n) {
     for (int i = 0; i < m; i++) {

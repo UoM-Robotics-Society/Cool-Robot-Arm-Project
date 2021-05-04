@@ -16,7 +16,7 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
     arma::vec Xp(5, arma::fill::zeros), P(5,arma::fill::zeros), S(5,arma::fill::zeros), Y(5,arma::fill::zeros);
     double A;
     arm.set_goal(x,y,z);
-    double mu = 0.00;
+    double mu = 1000;
     ForwardKinematics fk = ForwardKinematics();
     int local_min_count = 0;
     while(true){
@@ -107,7 +107,7 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
 
             arma::vec cost1 = arm.cost_function_gradient(Xp, 0, mu);
             arma::vec cost2 = arm.cost_function_gradient(X,0, mu);      
-            if (true) {
+            if (false) {
                 std::cout << "Cost1: ";
                 std::cout << cost1[0] << " ";    
                 std::cout << cost1[1] << " ";    
@@ -188,13 +188,13 @@ int main (){
     arma::vec yeet;
     yeet << 0 << 0 << 0 << 0 << 0 << arma::endr;
     arma::vec start;
-    start << 0.3218 << 1.03 << -1.48 << 0.5191 << 0.0 << arma::endr;
+    start << 0.2 << 0.2 << 0.2 << 0.2 << 0.0 << arma::endr;
     double x, y, z = 0;
 
     srand (static_cast <unsigned> (time(0)));
 
     x = 0.3;
-    y = 0.1;
+    y = 0.0;
     z = 0.0;
     arma::vec position;
     position << x << y << z << arma::endr;
