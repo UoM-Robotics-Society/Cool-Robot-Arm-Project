@@ -39,7 +39,7 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
             std::cout << "Error: X = Xp" << std::endl;
             return X;
         }
-        if (true) {
+        if (false) {
             // Debug
             std::cout << "P = ";
             std::cout << P[0] << " ";    
@@ -146,7 +146,6 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
 
 int main (){
     LineSearch ls(0.057,0.365,0.430,0);
-
     ForwardKinematics fktoo;
     arma::vec yeet;
     yeet << 0 << 0 << 0 << 0 << 0 << arma::endr;
@@ -154,9 +153,9 @@ int main (){
     start << 0.2 << 0.2 << 0.2 << 0.2 << 0 << arma::endr;
     double x, y, z = 0;
 
-    x = 0.3;
-    y = 0.0;
-    z = 0.15;
+    x = 0.2492;
+    y = 0.1625;
+    z = 0.2;
     arma::vec position;
     position << x << y << z << arma::endr;
     std::cout << "---------------------" << std::endl;

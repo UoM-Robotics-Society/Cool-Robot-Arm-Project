@@ -195,9 +195,10 @@ int LineSearch::InBounds(arma::vec angles) {
 arma::vec LineSearch::GoldenSearch(arma::vec current_pos, arma::vec direction, double mu) {
     // CONSTANTS
     arma::vec dir_norm = arma::normalise(direction);
-    float tolerance = 0.0000001;
-    float tau = 2 / (1 + sqrt(5));
-    float dir_step = 0.01;
+    double tolerance = 0.0000000000000001;
+    double tau = 2.0 / (1.0 + sqrt(5.0));
+    std::cout << "Tau: " << tau << std::endl;
+    double dir_step = 0.001;
     arma::vec x_min = current_pos;
     arma::vec x_max = arma::vec::fixed<5>();
     arma::vec start_min = x_min;
@@ -206,7 +207,7 @@ arma::vec LineSearch::GoldenSearch(arma::vec current_pos, arma::vec direction, d
     int dir_count = 0;
     arma::vec dir_inc = dir_norm * dir_step;
 
-    //std::cout << "dir_norm = "; print_vec(dir_norm);
+    std::cout << "dir_norm = "; print_vec(dir_norm);
 
     while (InBounds(x_max) == 0) {
         x_max = x_max + dir_inc;
@@ -229,10 +230,11 @@ arma::vec LineSearch::GoldenSearch(arma::vec current_pos, arma::vec direction, d
     int k = 0; // interations;
     arma::vec w_min = tau * x_min + (1 - tau) * x_max; // initialise lower tau search point
     arma::vec w_max = (1 - tau) * x_min + tau * x_max; // initialise upper tau search point
-
     while (arma::max(arma::abs(x_max - x_min)) > tolerance) {
-        float j_w_min = this->cost_function(w_min,0,mu);
-        float j_w_max = this->cost_function(w_max,0,mu);
+    //while(abs(this->cost_function(x_max,0,mu) - this->cost_function(x_min,0,mu)) > tolerance){
+        //std::cout << arma::max(arma::abs(x_max - x_min)) << std::endl;
+        double j_w_min = this->cost_function(w_min,0,mu);
+        double j_w_max = this->cost_function(w_max,0,mu);
         if (j_w_min < j_w_max) {
             x_max = w_max;
             w_max = w_min;
@@ -243,6 +245,8 @@ arma::vec LineSearch::GoldenSearch(arma::vec current_pos, arma::vec direction, d
             w_max = (1 - tau) * x_min + tau * x_max;
         }
         k += 1;
+        //print_vec(x_max - x_min);
+        //print_vec(arma::abs(x_max - x_min));
         //std::cout << k << ": " << arma::max(arma::abs(x_max - x_min)) << std::endl;
     }
     arma::vec v = (x_min + x_max) * 0.5;
@@ -255,5 +259,17 @@ arma::vec LineSearch::GoldenSearch(arma::vec current_pos, arma::vec direction, d
         std::cout << "x_min: " << this->cost_function(x_min, 0, 0.1) << std::endl; 
         std::cout << "x_max: " << this->cost_function(x_max, 0, 0.1) << std::endl; 
     }
-    return v;
+    //return v;
+    if(this->cost_function(x_max,0,mu) > this->cost_function(x_min,0,mu)){
+        std::cout << "Min" << std::endl;
+        return x_min;
+    }
+    else if(this->cost_function(x_max,0,mu) < this->cost_function(x_min,0,mu)){
+        std::cout << "Max" << std::endl;
+        return x_max;
+    }
+    else{
+        std::cout << "Mario" << std::endl;
+        return v;
+    }
 }
