@@ -52,6 +52,7 @@ double LineSearch::cost_function(arma::vec5 q, double d, double MU) {
         for(int i = 0; i < CRAP_NUM_REVOLUTE_FRAMES; i++) {
             cost -= MU * (log(max_angle[i] - q[i]) + log(q[i] - min_angle[i]));
         }
+        //cost += MU * (log(radius_outer - radius));
     }
     
     return cost;
@@ -63,7 +64,7 @@ double LineSearch::dist_to_goal(arma::vec5 q, double d) {
     double actual_y = actual_coords(1);
     double actual_z = actual_coords(2);
 
-    double cost = pow(goal_x - actual_x, 2) + pow(goal_y - actual_y, 2) + pow(goal_z - actual_z, 2);
+    double cost = sqrt(pow(goal_x - actual_x, 2) + pow(goal_y - actual_y, 2) + pow(goal_z - actual_z, 2));
 
     return cost;
 }
@@ -92,6 +93,8 @@ arma::vec LineSearch::cost_function_gradient(arma::vec5 q, double d, double MU) 
             double b = 1/(q(i) - min_angle[i]);
             grad(i) = grad(i) - MU*(a + b);
         }
+        //grad(2) = grad(2) + MU*((-0.009025000000*sin(q2) - 0.01235000000*cos(q3 + q2))/(sqrt(-0.02470000000*sin(q3) + 0.01805000000*cos(q2) + 0.03495000000 - 0.02470000000*sin(q3 + q2))*(-1.*radius_outer + sqrt(0.03495 - 0.0247*sin(q3) + 0.01805*cos(q2) - 0.02470000000*sin(q3 + q2)))));
+        //grad(3) = grad(3) + MU*(-0.01235000000*(cos(q3 + q2) + cos(q3))/((-radius_outer + sqrt(0.03495 - 0.0247*sin(q3) + 0.01805*cos(q2) - 0.02470000000*sin(q3 + q2)))*sqrt(-0.02470000000*sin(q3) + 0.01805000000*cos(q2) + 0.03495000000 - 0.02470000000*sin(q3 + q2))));
     }
     return grad;
 }

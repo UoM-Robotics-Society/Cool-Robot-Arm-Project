@@ -22,10 +22,13 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
     while(true){
         double costdiff = 100;
         double cost = 100;
+        double count = 0;
         while (cost > 0.000001){
+            count++;
+            if(count > 100) break;
             arma::vec costVec = arm.cost_function_gradient(X,0,mu);
             cost = arm.cost_function(X,0,mu);
-            if(false){
+            if(true){
                 std::cout << "Cost: " << cost << std::endl;
                 std::cout << "MU: " << mu << std::endl;
             }
@@ -166,7 +169,8 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
             }
             if(count > 50){cost = 0;}
         }
-        if(arm.dist_to_goal(X,0) > 0.000001){
+        if(arm.dist_to_goal(X,0) > 0.002){
+        //if(mu>0.001){
             mu = mu*0.9;
         }
         else{
@@ -183,7 +187,6 @@ arma::vec BFGS (double x, double y, double z, arma::vec X){
 
 int main (){
     LineSearch ls(0.057,0.365,0.430,0);
-
     ForwardKinematics fktoo;
     arma::vec yeet;
     yeet << 0 << 0 << 0 << 0 << 0 << arma::endr;
@@ -193,9 +196,9 @@ int main (){
 
     srand (static_cast <unsigned> (time(0)));
 
-    x = 0.3;
-    y = 0.0;
-    z = 0.0;
+    x = 0.25;
+    y = 0.15;
+    z = 0.2;
     arma::vec position;
     position << x << y << z << arma::endr;
     std::cout << "---------------------" << std::endl;
