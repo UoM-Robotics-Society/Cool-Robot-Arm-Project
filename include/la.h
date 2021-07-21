@@ -488,6 +488,26 @@ namespace LA {
             }
         }
 
+        mat(std::initializer_list<col_type> arr) {
+            assert(arr.size() <= N);
+            std::copy(arr.begin(), arr.end(), this->data);
+        }
+
+        mat(std::initializer_list<std::initializer_list<T>> arg) {
+            M_Assert((int)arg.size() == this->height(), "ERROR: Invalid input (width)");
+            int i = 0;
+            int j = 0;
+            for (std::initializer_list<T> list : arg) {
+                M_Assert((int)list.size() == this->width(), "ERROR: Invalid input (height)");
+                i = 0;
+                for (T t : list) {
+                    this->operator[](i)[j] = t;
+                    i += 1;
+                }
+                j += 1;
+            }
+        }
+
 		// template<int I, int J, typename U>
 		// template<typename std::enable_if<(N <= I && J <= J), bool> = true>
 		// mat(mat<I, J, U> const& m);
