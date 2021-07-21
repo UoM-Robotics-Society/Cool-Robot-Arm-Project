@@ -1,7 +1,6 @@
-#define ARMA_DONT_USE_STD_MUTEX
-#include <armadillo>
 #include <cstdlib>
 
+#include "la.h"
 #include "forward_kinematics.h"
 
 ForwardKinematics::ForwardKinematics() {
@@ -20,10 +19,10 @@ ForwardKinematics::ForwardKinematics() {
     d[4] = 0.130;
     d[5] = 0;
 
-    alpha[0] = arma::datum::pi / 2;
+    alpha[0] = LA::PI / 2;
     alpha[1] = 0;
     alpha[2] = 0;
-    alpha[3] = -arma::datum::pi / 2;
+    alpha[3] = -LA::PI / 2;
     alpha[4] = 0;
     alpha[5] = 0;
 
@@ -34,9 +33,9 @@ ForwardKinematics::ForwardKinematics() {
     }
 }
 
-arma::vec ForwardKinematics::GetExtendedPositionVector(arma::vec5 q) {
-    q(1) = q(1) + arma::datum::pi / 2;
-    q(3) = q(3) - arma::datum::pi / 2;
+LA::vecd<3> ForwardKinematics::GetExtendedPositionVector(LA::vecd<5> q) {
+    q[1] = q[1] + LA::PI / 2;
+    q[3] = q[3] - LA::PI / 2;
     /*arma::vec5 q_copy = arma::vec5(q);
     // double q_copy[CRAP_NUM_REVOLUTE_FRAMES];
     // memcpy(q_copy, q, CRAP_NUM_REVOLUTE_FRAMES * sizeof(int));
@@ -45,15 +44,15 @@ arma::vec ForwardKinematics::GetExtendedPositionVector(arma::vec5 q) {
     q_copy(3) -= arma::datum::pi / 2;
     
     for(int i = 0; i < CRAP_NUM_REVOLUTE_FRAMES; i++) {
-        A[i](0, 0) = cos(q_copy(i));
-        A[i](0, 1) = -sin(q_copy(i)) * cos_alpha[i];
-        A[i](0, 2) = sin(q_copy(i)) * sin_alpha[i];
-        A[i](0, 3) = a[i] * cos(q_copy(i));
+        A[i](0, 0) = cos(q_copy[i]);
+        A[i](0, 1) = -sin(q_copy[i]) * cos_alpha[i];
+        A[i](0, 2) = sin(q_copy[i]) * sin_alpha[i];
+        A[i](0, 3) = a[i] * cos(q_copy[i]);
 
-        A[i](1, 0) = sin(q_copy(i));
-        A[i](1, 1) = cos(q_copy(i)) * cos_alpha[i];
-        A[i](1, 2) = -cos(q_copy(i)) * sin_alpha[i];
-        A[i](1, 3) = a[i] * sin(q_copy(i));
+        A[i](1, 0) = sin(q_copy[i]);
+        A[i](1, 1) = cos(q_copy[i]) * cos_alpha[i];
+        A[i](1, 2) = -cos(q_copy[i]) * sin_alpha[i];
+        A[i](1, 3) = a[i] * sin(q_copy[i]);
         
         A[i](2, 0) = 0;
         A[i](2, 1) = sin_alpha[i];
@@ -100,9 +99,9 @@ arma::vec ForwardKinematics::GetExtendedPositionVector(arma::vec5 q) {
 
     arma::vec p0 = transform_matrix * pn;
     */
-    arma::vec p0(3,arma::fill::zeros);
-    p0(0) = cos(q(0))*(-0.13*cos(q(2))*sin(q(3)) - 0.13*sin(q(2))*cos(q(3)) + 0.095*cos(q(2)) + 0.095)*cos(q(1)) - 0.13*cos(q(0))*sin(q(1))*cos(q(2))*cos(q(3)) + (0.13*cos(q(0))*sin(q(3)) - 0.095*cos(q(0)))*sin(q(2))*sin(q(1));
-    p0(1) = sin(q(0))*(-0.13*cos(q(2))*sin(q(3)) - 0.13*sin(q(2))*cos(q(3)) + 0.095*cos(q(2)) + 0.095)*cos(q(1)) - 0.13*sin(q(0))*sin(q(1))*cos(q(2))*cos(q(3)) + (0.13*sin(q(0))*sin(q(3)) - 0.095*sin(q(0)))*sin(q(2))*sin(q(1));
-    p0(2) = ((-0.13*sin(q(3)) + 0.095)*cos(q(2)) - 0.13*sin(q(2))*cos(q(3)) + 0.095)*sin(q(1)) + 0.065 + (0.13*cos(q(2))*cos(q(3)) + (-0.13*sin(q(3)) + 0.095)*sin(q(2)))*cos(q(1));
+    LA::vecd<3> p0 = {0.0, 0.0, 0.0};
+    p0[0] = cos(q[0])*(-0.13*cos(q[2])*sin(q[3]) - 0.13*sin(q[2])*cos(q[3]) + 0.095*cos(q[2]) + 0.095)*cos(q[1]) - 0.13*cos(q[0])*sin(q[1])*cos(q[2])*cos(q[3]) + (0.13*cos(q[0])*sin(q[3]) - 0.095*cos(q[0]))*sin(q[2])*sin(q[1]);
+    p0[1] = sin(q[0])*(-0.13*cos(q[2])*sin(q[3]) - 0.13*sin(q[2])*cos(q[3]) + 0.095*cos(q[2]) + 0.095)*cos(q[1]) - 0.13*sin(q[0])*sin(q[1])*cos(q[2])*cos(q[3]) + (0.13*sin(q[0])*sin(q[3]) - 0.095*sin(q[0]))*sin(q[2])*sin(q[1]);
+    p0[2] = ((-0.13*sin(q[3]) + 0.095)*cos(q[2]) - 0.13*sin(q[2])*cos(q[3]) + 0.095)*sin(q[1]) + 0.065 + (0.13*cos(q[2])*cos(q[3]) + (-0.13*sin(q[3]) + 0.095)*sin(q[2]))*cos(q[1]);
     return p0;
 }

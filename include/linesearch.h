@@ -1,12 +1,6 @@
 #pragma once
 #include "forward_kinematics.h"
 
-
-// TODO documentation
-// ? choose a different value
-void print_mat(arma::mat mat, int m = 5, int n = 5);
-void print_vec(arma::vec v, int size = 5);
-
 class LineSearch {
     private:
     double goal_x, goal_y, goal_z;
@@ -18,8 +12,8 @@ class LineSearch {
     ForwardKinematics fk;
 
     public:
-    double min_angle[CRAP_NUM_REVOLUTE_FRAMES] = {-arma::datum::pi, -arma::datum::pi/2, -2*arma::datum::pi/3,   -arma::datum::pi/2,   -arma::datum::pi};
-    double max_angle[CRAP_NUM_REVOLUTE_FRAMES] = {arma::datum::pi,  arma::datum::pi/2,  2*arma::datum::pi/3,    arma::datum::pi/2,    arma::datum::pi};
+    double min_angle[CRAP_NUM_REVOLUTE_FRAMES] = {-LA::PI, -LA::PI/2, -2*LA::PI/3,   -LA::PI/2,   -LA::PI};
+    double max_angle[CRAP_NUM_REVOLUTE_FRAMES] = {LA::PI,  LA::PI/2,  2*LA::PI/3,    LA::PI/2,    LA::PI};
 
     /*
     Initialize line search.
@@ -45,8 +39,8 @@ class LineSearch {
     @param the position of the final prismatic joint.
     @returns the value of the cost function.
     */
-    double cost_function(arma::vec5 q, double d, double MU);
-    double dist_to_goal(arma::vec5 q, double d);
+    double cost_function(LA::vecd<5> q, double d, double MU);
+    double dist_to_goal(LA::vecd<5> q, double d);
     /*
     Calculate the gradient of the cost function with respect
     to the angles of the five revolute joints.
@@ -54,15 +48,21 @@ class LineSearch {
     @param the position of the final prismatic joint.
     @returns the gradient of the cost function as a vector.
     */
-    arma::vec cost_function_gradient(arma::vec5 q, double d, double MU);
+    LA::vecd<5> cost_function_gradient(LA::vecd<5> q, double d, double MU);
 
+    /*
+    Check if 3D position is in bounds
+    @param array of the 3D co-ordinates.
+    @returns true if in bounds
+    */
+    int InBoundsPos(LA::vecd<3> pos);
+    int InBoundsPos(double x, double y, double z);
     /*
     Check if angle positions are in bounds
     @param array of the angles of the 5 revolute joints.
     @returns true if in bounds
     */
-    int InBoundsPos(arma::vec pos);
-    int InBounds(arma::vec angles);
+    int InBounds(LA::vecd<5> angles);
 
 // https://en.wikipedia.org/wiki/Golden-section_search
 
@@ -79,5 +79,5 @@ class LineSearch {
 // @param direction - direction of search
 // @return step as float value
 
-    arma::vec GoldenSearch(arma::vec current_pos, arma::vec direction, double mu);
+    LA::vecd<5> GoldenSearch(LA::vecd<5> current_pos, LA::vecd<5> direction, double mu);
 };

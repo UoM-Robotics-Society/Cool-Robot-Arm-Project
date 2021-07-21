@@ -1,6 +1,5 @@
 #pragma once
-#define ARMA_DONT_USE_STD_MUTEX
-#include <armadillo>
+#include "la.h"
 
 #define CRAP_NUM_FRAMES 6
 #define CRAP_NUM_REVOLUTE_FRAMES 5
@@ -20,15 +19,17 @@ class ForwardKinematics{
     double cos_alpha[CRAP_NUM_FRAMES];
     double sin_alpha[CRAP_NUM_FRAMES];
 
-    arma::mat::fixed<4, 4> A[CRAP_NUM_FRAMES];
+    LA::matd<4, 4> A[CRAP_NUM_FRAMES];
    public:
     ForwardKinematics();
+
+    // The fourth element of the vector is always 1. This is a by-product of the forward kinematics equation.
+    // Not sure if still true
 
     /*
     Calculate the position of the end affector for a certain robot configuration.
     @param array of the angles of the robot's five joints.
-    @returns 4-vector of the x, y and z coordinates of the end affector as measured from the ground frame.
-    The fourth element of the vector is always 1. This is a by-product of the forward kinematics equation.
+    @returns 3-vector of the x, y and z coordinates of the end affector as measured from the ground frame.
     */
-    arma::vec GetExtendedPositionVector(arma::vec5 q);
+    LA::vecd<3> GetExtendedPositionVector(LA::vecd<5> q);
 };
