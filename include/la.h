@@ -1,11 +1,32 @@
+#pragma once
 #include <iostream>
 #include <cmath>
 #include <assert.h>
 
 namespace LA {
+
+    const double PI = 3.14159265358979323846;    
+
     typedef int length_t;
     template<length_t L, typename T> struct vec;
     template<length_t R, length_t C, typename T> struct mat;
+
+
+    // Non-Vector and Non-Matrix Functions
+    template<typename T>
+    T min(T a, T b) {
+        return a < b ? a : b;
+    } 
+
+    template<typename T>
+    T max(T a, T b) {
+        return a > b ? a : b;
+    }
+
+    template<typename T>
+    T abs(T a) {
+        return a < 0 ? -a : a;
+    }
 
 
     template<int N, typename T>
@@ -15,22 +36,22 @@ namespace LA {
             T m[N];
 
         public:
-        static int length() {
-            return N;
-        }
-        static int size() {
-            return N;
-        }
+        static length_t len() { return N; }
+        static length_t width() { return 1; }
+        static length_t height() { return N; }
+        static length_t columns() { return 1; }
+        static length_t rows() { return N; }
+        static length_t size() {return N; }
 
         // --- Constructors --- //
         vec(T scalar = 0) {
-            for (int i = 0; i < this->length(); i++) {
+            for (int i = 0; i < this->size(); i++) {
                 this->operator[](i) = scalar;
             }
         }
 
         vec(const T arr[N]) {
-            for (int i = 0; i < this->length(); i++) {
+            for (int i = 0; i < this->size(); i++) {
                 this->operator[](i) = arr[N];
             }
         }
@@ -44,14 +65,14 @@ namespace LA {
 
         // Index Operator
         T & operator[](int i) {
-            if (i > this->length() || i < 0) {
+            if (i > this->size() || i < 0) {
                 throw std::out_of_range("index out of bounds");
             }
             return this->m[i];
         }
 
 		T const& operator[](int i) const {
-            if (i > this->length() || i < 0) {
+            if (i > this->size() || i < 0) {
                 throw std::out_of_range("index out of bounds");
             }
             return this->m[i];
@@ -61,14 +82,14 @@ namespace LA {
         // --- Unary Arithmetic Operator Functions --- //
 
         vec<N, T> & operator=(const vec<N, T>& v) {
-            for (int i = 0; i < this->length(); i++) {
+            for (int i = 0; i < this->size(); i++) {
                 this->operator[](i) = v[i];
             }
             return *this;
         }
 
         vec<N, T> & operator=(const T arr[N]) {
-            for (int i = 0; i < this->length(); i++) {
+            for (int i = 0; i < this->size(); i++) {
                 this->operator[](i) = arr[i];
             }
             return *this;
@@ -76,13 +97,13 @@ namespace LA {
 
         // Addition and assign 
         vec<N, T> & operator+=(T scalar) {
-            for (int i = 0; i < this->length(); i++) {
+            for (int i = 0; i < this->size(); i++) {
                 this->operator[](i) += scalar;
             }
             return *this;
         }
         vec<N, T> & operator+=(const vec<N, T>& v) {
-            for (int i = 0; i < this->length(); i++) {
+            for (int i = 0; i < this->size(); i++) {
                 this->operator[](i) += v.operator[](i);
             }
             return *this;
@@ -90,13 +111,13 @@ namespace LA {
 
         // Subtract and assign
         vec<N, T> & operator-=(T scalar) {
-            for (int i = 0; i < this->length(); i++) {
+            for (int i = 0; i < this->size(); i++) {
                 this->operator[](i) -= scalar;
             }
             return *this;
         }
         vec<N, T> & operator-=(const vec<N, T>& v) {
-            for (int i = 0; i < this->length(); i++) {
+            for (int i = 0; i < this->size(); i++) {
                 this->operator[](i) -= v.operator[](i);
             }
             return *this;
@@ -104,14 +125,14 @@ namespace LA {
 
         // Scalar multiplication
         vec<N, T> & operator*=(T scalar) {
-            for (int i = 0; i < this->length(); i++) {
+            for (int i = 0; i < this->size(); i++) {
                 this->operator[](i) *= scalar;
             }
             return *this;
         }
         // Component-wise multiplication
         vec<N, T> & operator*=(const vec<N, T>& v) {
-            for (int i = 0; i < this->length(); i++) {
+            for (int i = 0; i < this->size(); i++) {
                 this->operator[](i) *= v[i];
             }
             return *this;
@@ -119,14 +140,14 @@ namespace LA {
 
         // Scalar division
         vec<N, T> & operator/=(T scalar) {
-            for (int i = 0; i < this->length(); i++) {
+            for (int i = 0; i < this->size(); i++) {
                 this->operator[](i) /= scalar;
             }
             return *this;
         }
         // Component-wise division
         vec<N, T> & operator/=(const vec<N, T>& v) {
-            for (int i = 0; i < this->length(); i++) {
+            for (int i = 0; i < this->size(); i++) {
                 if (v[i] == 0) {
                     throw "ERROR: Divide by 0";
                 }
@@ -137,21 +158,21 @@ namespace LA {
 
         // Pre-Fix Increment
         vec<N, T> & operator++() {
-            for (int i = 0; i < this->length(); i++) {
+            for (int i = 0; i < this->size(); i++) {
                 ++this->operator[](i);
             }
             return *this;
         }
         // Pre-Fix Decrement
         vec<N, T> & operator--() {
-            for (int i = 0; i < this->length(); i++) {
+            for (int i = 0; i < this->size(); i++) {
                 --this->operator[](i);
             }
             return *this;
         }
         // Post-Fix Increment
         vec<N, T> operator++(int) {
-            for (int i = 0; i < this->length(); i++) {
+            for (int i = 0; i < this->size(); i++) {
                 this->operator[](i)++;
             }
             return *this;
@@ -159,7 +180,7 @@ namespace LA {
         
         // Post-Fix Decrement
         vec<N, T> operator--(int) {
-            for (int i = 0; i < this->length(); i++) {
+            for (int i = 0; i < this->size(); i++) {
                 this->operator[](i)--;
             }
             return *this;
@@ -168,18 +189,53 @@ namespace LA {
 
         // ---  Nullary Functions --- //
 
-        int len() {
-            return N;
-        }
+        // int len() {
+        //     return N;
+        // }
 
-        int height() {
-            return N;
-        }
+        // int size() {
+        //     return N;
+        // }
 
-        int width() {
-            return 1;
-        }
+        // int height() {
+        //     return N;
+        // }
+
+        // int width() {
+        //     return 1;
+        // }
     };
+
+    // Convert 1x1 vector to scalar
+    template<typename T>
+    T as_scalar(vec<1, T> const& v) {
+        return v[0];
+    }
+
+    // Get length of vector
+    template<int N, typename T>
+    double length(vec<N, T> const& v) {
+        double t = 0.0;
+        for (int i = 0; i < v.size(); i++) {
+            t += v[i] * v[i];
+        }
+        return sqrt(t);
+    }
+
+    // Normalise vector to length 1
+    template<int N, typename T>
+    vec<N, T> normalise(vec<N, T> const& v) {
+        double l = LA::length(v);
+        if (l == 0.0) {
+            return v;
+        }
+        vec<N, T> total;
+        for (int i = 0; i < v.size(); i++) {
+            total[i] = v[i] / l;
+        }
+        return total;
+    }
+    
 
     // --- Binary Arithmetic Operator Functions --- //
 
@@ -205,6 +261,16 @@ namespace LA {
         vec<N, T> total;
         for (int i = 0; i < v1.len(); i++) {
             total[i] = v1[i] + v2[i];
+        }
+        return total;
+    }
+
+    // Negative
+    template<int N, typename T>
+    vec<N, T> operator-(vec<N, T> const& v) {
+        vec<N, T> total;
+        for (int i = 0; i < v.len(); i++) {
+            total[i] = -v[i];
         }
         return total;
     }
@@ -386,11 +452,12 @@ namespace LA {
 
 	public:
 
-		static length_t length() { return M; }
+		static length_t len() { return M; }
         static length_t width() { return M; }
         static length_t height() { return N; }
         static length_t columns() { return M; }
         static length_t rows() { return N; }
+        static length_t size() {return N * M; }
         
 		col_type & operator[](int i) {
             if (i > this->width() || i < 0) {
@@ -407,9 +474,19 @@ namespace LA {
 
 		// -- Constructors --
 
-		mat() = default;
-		mat(T scalar);
+        // Creates a matrix filled with scalar
+		mat(T scalar) {
+            for (int i = 0; i < this->width(); i++) {
+                this->operator[](i) = vec<N, T>(scalar);
+            }
+        }
 
+        // Creates a matrix with the leading diagonal filled with 0s (identity)
+		mat() : mat(0) {
+            for (int i = 0; i < min(this->width(), this->height()); i++) {
+                this->operator[](i)[i] = 1;
+            }
+        }
 
 		// template<int I, int J, typename U>
 		// template<typename std::enable_if<(N <= I && J <= J), bool> = true>
@@ -517,6 +594,12 @@ namespace LA {
 
     // --- Unary Operator --- ///
 
+    // Convert 1x1 matrix to scalar
+    template<typename T>
+    T as_scalar(mat<1, 1, T> const& m) {
+        return m[0][0];
+    }
+
     // Inverse of a square matrix
     template<int N, typename T>
     mat<N, N, T> inverse(mat<N, N, T> const& m) {
@@ -528,6 +611,15 @@ namespace LA {
         mat<N, N, T> co = cofactor(m);
         mat<N, N, T> ct = transpose(co);
         return ct * (1 / det);
+    }
+
+    template<int N, typename T>
+    mat<1, N, T> transpose(vec<N, T> const& v) {
+        mat<1, N, T> inv;
+        for (int i = 0; i < v.height(); i++) {
+            inv[i][0] = v[i];
+        }
+        return inv;
     }
 
     template<int N, int M, typename T>
@@ -543,7 +635,7 @@ namespace LA {
 
     template<int N, typename T>
     double determinant(mat<N, N, T> a) {
-        int n = a.length();
+        int n = a.len();
         double det = 0;
         mat<N, N, T> m = mat<N, N, T>();
 
@@ -573,7 +665,7 @@ namespace LA {
 
     template<int N, typename T>
     mat<N, N, T> cofactor(mat<N, N, T> a) {
-        int n = a.length();
+        int n = a.len();
         double det;
         mat<N, N, T> b, c;
 
@@ -630,6 +722,16 @@ namespace LA {
         return total;
     }
 
+    // Negative
+    template<int N, int M, typename T>
+    mat<N, M, T> operator-(mat<N, M, T> const& m) {
+        mat<N, M, T> total;
+        for (int i = 0; i < m.size(); i++) {
+            total[i] = -m[i];
+        }
+        return total;
+    }
+
 	template<int N, int M, typename T>
 	mat<N, M, T> operator-(mat<N, M, T> const& m, T scalar) {
         mat<N, M, T> total;
@@ -674,11 +776,11 @@ namespace LA {
     }
 
 	template<int N, int M, typename T>
-	typename mat<N, M, T>::col_type operator*(mat<N, M, T> const& m, typename mat<N, M, T>::col_type const& v) {
-        typename mat<N, M, T>::col_type total;
-        for (int i = 0; i < total.length(); i++) {
+	vec<N, T> operator*(mat<N, M, T> const& m, vec<M, T> const& v) {
+        vec<N, T> total;
+        for (int i = 0; i < m.height(); i++) {
             T t = 0;
-            for (int k = 0; k < total.length(); k++) {
+            for (int k = 0; k < m.width(); k++) {
                 t += v[k] * m[k][i];
             }
             total[i] = t;
@@ -686,18 +788,29 @@ namespace LA {
         return total;
     }
 
-	template<int N, int M, typename T>
-	typename mat<N, M, T>::row_type operator*(typename mat<N, M, T>::row_type const& v, mat<N, M, T> const& m) {
-        typename mat<N, M, T>::row_type total = mat<N, M, T>::row_type();
-        for (int i = 0; i < total.length(); i++) {
-            T t = 0;
-            for (int k = 0; k < total.length(); k++) {
-                t +=  m[i][k] * v[k];
+    template<int N, typename T>
+	mat<5, 5, T> operator*(vec<N, T> const& v, mat<1, N, T> const& m) {
+        mat<5, 5, T> total;
+        for (int i = 0; i < total.width(); i++) {
+            for (int j = 0; j < total.height(); j++) {
+                total[i][j] = v[j] * m[i][0];
             }
-            total[i] = t;
         }
         return total;
     }
+
+	// template<int N, int M, typename T>
+	// mat<1, M, T> operator*(vec<N, T> const& v, mat<N, M, T> const& m) {
+    //     typename mat<N, M, T>::row_type total = mat<N, M, T>::row_type();
+    //     for (int i = 0; i < total.length(); i++) {
+    //         T t = 0;
+    //         for (int k = 0; k < total.length(); k++) {
+    //             t +=  m[i][k] * v[k];
+    //         }
+    //         total[i] = t;
+    //     }
+    //     return total;
+    // }
 
 	template<int N, int M, int O, typename T>
 	mat<N, O, T> operator*(mat<N, M, T> const& m1, mat<M, O, T> const& m2) {
@@ -733,16 +846,16 @@ namespace LA {
     }
 
 	template<int N, int M, typename T>
-	typename mat<N, M, T>::col_type operator/(mat<N, M, T> const& m, typename mat<N, M, T>::col_type const& v) {
+	vec<N, T> operator/(mat<N, M, T> const& m, vec<N, T> const& v) {
         mat<M, M, T> inv = inverse(m);
         if (m == inv) {
             throw "ERROR: cannot divide using non-singular matrix";
             return v;
         }
-        typename mat<N, M, T>::col_type total = mat<N, M, T>::col_type();
-        for (int i = 0; i < total.length(); i++) {
+        vec<N, T> total = vec<N, T>();
+        for (int i = 0; i < total.len(); i++) {
             T t = 0;
-            for (int k = 0; k < total.length(); k++) {
+            for (int k = 0; k < total.len(); k++) {
                 t += v[k] / inv[i][k];
             }
             total[i] = t;
@@ -750,23 +863,23 @@ namespace LA {
         return total;
     }
 
-	template<int N, int M, typename T>
-	typename mat<N, M, T>::row_type operator/(typename mat<N, M, T>::row_type const& v, mat<N, M, T> const& m) {
-        mat<M, M, T> inv = inverse(m);
-        if (m == inv) {
-            throw "ERROR: cannot divide using non-singular matrix";
-            return v;
-        }
-        typename mat<N, M, T>::row_type total = mat<N, M, T>::row_type();
-        for (int i = 0; i < total.length(); i++) {
-            T t = 0;
-            for (int k = 0; k < total.length(); k++) {
-                t +=  inv[k][i] / v[k];
-            }
-            total[i] = t;
-        }
-        return total;
-    }
+	// template<int N, int M, typename T>
+	// typename mat<N, M, T>::row_type operator/(typename mat<N, M, T>::row_type const& v, mat<N, M, T> const& m) {
+    //     mat<M, M, T> inv = inverse(m);
+    //     if (m == inv) {
+    //         throw "ERROR: cannot divide using non-singular matrix";
+    //         return v;
+    //     }
+    //     typename mat<N, M, T>::row_type total = mat<N, M, T>::row_type();
+    //     for (int i = 0; i < total.length(); i++) {
+    //         T t = 0;
+    //         for (int k = 0; k < total.length(); k++) {
+    //             t +=  inv[k][i] / v[k];
+    //         }
+    //         total[i] = t;
+    //     }
+    //     return total;
+    // }
 
 	template<int N, int M, typename T>
 	mat<N, M, T> operator/(mat<N, M, T> const& m1, mat<M, M, T> const& m2) {
@@ -802,7 +915,7 @@ namespace LA {
     // print
     template<int N, typename T>
     std::ostream& operator<<(std::ostream& os, vec<N, T>& obj) {
-        for (int i = 0; i < obj.length(); i++) {
+        for (int i = 0; i < obj.len(); i++) {
             os << obj[i];
         }
         return os << std::endl;
@@ -810,19 +923,20 @@ namespace LA {
 
     template<int N, int M, typename T>
     std::ostream& operator<<(std::ostream& os, mat<N, M, T>& obj) {
-        for (int i = 0; i < obj.length(); i++) {
+        for (int i = 0; i < obj.len(); i++) {
             os << obj[i];
         }
         return os << std::endl;
     }
 
     template<int N, typename T>
-    void print(vec<N, T> const& v, bool hasNewline = true) {
+    void print(vec<N, T> const& v, bool asRow = false, bool hasNewlineEnd = true) {
         std::cout << "Vector: " << std::endl;
-        for (int i = 0; i < v.length(); i++) {
-            std::cout << v[i] << "\n";
+        char delimmiter = asRow ? '\t' : '\n';
+        for (int i = 0; i < v.size(); i++) {
+            std::cout << v[i] << delimmiter;
         }
-        if (hasNewline) {
+        if (hasNewlineEnd) {
             std::cout << std::endl;
         }
     }
@@ -839,6 +953,33 @@ namespace LA {
         if (hasNewline) {
             std::cout << std::endl;
         }
+    }
+
+    template<int N, typename T>
+    T min(vec<N, T> const& v) {
+        T t = v[0];
+        for (int i = 0; i < v.size(); i++) {
+            t = min(t, v[i]);
+        }
+        return t;
+    }
+
+    template<int N, typename T>
+    T max(vec<N, T> const& v) {
+        T t = v[0];
+        for (int i = 1; i < v.size(); i++) {
+            t = max(t, v[i]);
+        }
+        return t;
+    }
+
+    template<int N, typename T>
+    vec<N, T> abs(vec<N, T> const& v) {
+        vec<N, T> total;
+        for (int i = 0; i < v.size(); i++) {
+            total[i] = abs(v[i]);
+        }
+        return total;
     }
 
 
