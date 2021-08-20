@@ -1,7 +1,7 @@
 #include <cstdlib>
 
 #include "la.h"
-#include "forward_kinematics.h"
+#include "forwardkinematics.h"
 
 ForwardKinematics::ForwardKinematics() {
     // assign DH parameters

@@ -5,8 +5,8 @@
 
 #include "la.h"
 #include "linesearch.h"
-#include "forward_kinematics.h"
-#include "BFGS3.h"
+#include "forwardkinematics.h"
+#include "BFGS.h"
 
 #define GOAL_AXIS_MAX 0.3
 #define GOAL_AXIS_MIN 0.1

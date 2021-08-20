@@ -1,5 +1,5 @@
 #pragma once
-#include "forward_kinematics.h"
+#include "forwardkinematics.h"
 
 class LineSearch {
     private:

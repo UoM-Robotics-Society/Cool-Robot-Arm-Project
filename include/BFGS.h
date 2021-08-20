@@ -1,6 +1,6 @@
 #include "la.h"
 #include "linesearch.h"
-#include "forward_kinematics.h"
+#include "forwardkinematics.h"
 
 #define MU_INIT 1000.0
 
