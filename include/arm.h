@@ -11,7 +11,7 @@
 
 
 /*
-    Prime class that encapsulates all accesses to the arm with proper integration of all systems.
+Prime class that encapsulates all accesses to the arm with proper integration of all systems.
 */
 class Arm {
     private:
@@ -21,14 +21,14 @@ class Arm {
 
         LA::vecd<5> BFGS (double x, double y, double z) {
             LA::vecd<5> X = current_motors;
-            int count = 0;
+            int count, local_min_count = 0;
             LA::matd<5, 5> Bii = LA::matd<5, 5>();
             LA::matd<5, 5> Bi = Bii;
             LA::vecd<5> zeros(0.0), Xp(0.0), P(0.0), S(0.0), Y(0.0);
             double A;
             ls.set_goal(x,y,z);
             double mu = 1000;
-            int local_min_count = 0;
+
             while(true){
                 double costdiff = 100;
                 double cost = 100;
@@ -47,30 +47,21 @@ class Arm {
                         print(Bi);
                     }
                     if (false) {
-                        std::cout << "cost grad = ";
-                        std::cout << costVec[0] << " ";  
-                        std::cout << costVec[1] << " ";   
-                        std::cout << costVec[2] << " ";
-                        std::cout << costVec[3] << " ";
-                        std::cout << costVec[4] << std::endl;
+                        std::cout << "cost grad: " << std::endl;
+                        print(costVec);
                     }
                     P = -(Bi*costVec);
                     if (false) {
                         // Debug
-                        std::cout << "P = ";
-                        std::cout << P[0] << " ";    
-                        std::cout << P[1] << " ";  
-                        std::cout << P[2] << " ";
-                        std::cout << P[3] << " ";
-                        std::cout << P[4] << std::endl;
+                        std::cout << "P: " << std::endl;
+                        print(P);
                     }
                     
                     if(std::isnan(P[0])){
                         if(local_min_count > 10){
                             std::cout << "Stuck in over 10 local minima" << std::endl;
                             return X;
-                        }
-                        else{
+                        } else {
                             local_min_count++;
                             std::cout << "Error: Local minima after " << local_min_count << " attempts" << std::endl;
                             float q[5];
@@ -83,10 +74,7 @@ class Arm {
                             std::cout << std::endl;
                             mu = 0;
                             Bi = Bii;
-                            Xp = zeros;
-                            P = zeros; 
-                            S = zeros;
-                            Y = zeros;
+                            Xp, P, S, Y = zeros;
                             break;
                         }
                     }
@@ -96,44 +84,26 @@ class Arm {
                     if (false) {
                         //std::cout << "---------------------" << std::endl;
                         LA::vecd<3> pos = fk.GetExtendedPositionVector(X);
-                        std::cout << "";
-                        std::cout << pos[0] << ",";  
-                        std::cout << pos[1] << ","; 
-                        std::cout << pos[2] << std::endl;
+                        std::cout << "pos: " << std::endl;
+                        LA::print(pos);
                     }
                     if (false) {
-                        std::cout << "X = ";
-                        std::cout << X[0] << " ";    
-                        std::cout << X[1] << " ";  
-                        std::cout << X[2] << " ";
-                        std::cout << X[3] << " ";
-                        std::cout << X[4] << std::endl;
+                        std::cout << "X: " << std::endl;
+                        LA::print(X);
                     }
                     if (false) {
-                        std::cout << "Xp = ";
-                        std::cout << Xp[0] << " ";    
-                        std::cout << Xp[1] << " ";  
-                        std::cout << Xp[2] << " ";
-                        std::cout << Xp[3] << " ";
-                        std::cout << Xp[4] << std::endl;
+                        std::cout << "Xp = " << std::endl;
+                        LA::print(Xp);
                     }
 
                     LA::vecd<5> cost1 = ls.cost_function_gradient(Xp, 0, mu);
                     LA::vecd<5> cost2 = ls.cost_function_gradient(X,0, mu);      
                     if (false) {
-                        std::cout << "Cost1: ";
-                        std::cout << cost1[0] << " ";    
-                        std::cout << cost1[1] << " ";    
-                        std::cout << cost1[2] << " ";
-                        std::cout << cost1[3] << " ";
-                        std::cout << cost1[4] << std::endl; 
+                        std::cout << "Cost1: " << std::endl;
+                        LA::print(cost1);
 
-                        std::cout << "Cost2: ";
-                        std::cout << cost2[0] << " ";    
-                        std::cout << cost2[1] << " ";    
-                        std::cout << cost2[2] << " ";
-                        std::cout << cost2[3] << " ";
-                        std::cout << cost2[4] << std::endl; 
+                        std::cout << "Cost2: " << std::endl;
+                        LA::print(cost2);
                     }
                     Y = cost1 - cost2;
 
@@ -153,7 +123,7 @@ class Arm {
                     LA::vecd<5> ba = Bi * Y;
                     LA::matd<5, 5> bb = ba * St;
                     LA::matd<5, 5> bc = S * Yt;
-                    LA::matd<5, 5> bd = bc * Bi;
+                    LA::matd<5, 5> bd = (bc * Bi);
                     LA::matd<5, 5> b = bb + bd;
 
                     double c = LA::as_scalar(St * Y);
@@ -188,10 +158,6 @@ class Arm {
                     return X;
                 }
             }
-            //arma::vec good;
-            //good << 0.540419489324968 << 0.334426881574699 << 0.658670308915048 << 0.600956360426415 << 0 << arma::endr;
-            //std::cout << ls.cost_function(good,0,mu) << std::endl;
-            //std::cout << ls.cost_function_gradient(good,0,mu) << std::endl;
             return X;
         }
 

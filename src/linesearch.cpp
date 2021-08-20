@@ -80,25 +80,26 @@ LA::vecd<5> LineSearch::cost_function_gradient(LA::vecd<5> q, double d, double M
     return grad;
 }
 
-int LineSearch::InBoundsPos(LA::vecd<3> pos) {
+bool LineSearch::InBoundsPos(LA::vecd<3> pos) {
     double actual_x = pos[0];
     double actual_y = pos[1];
     double actual_z = pos[2];
     double radius = sqrt(pow(actual_x,2) + pow(actual_y,2) + pow(actual_z - 0.065,2));
     double radius2 = sqrt(pow(actual_x,2) + pow(actual_y,2));
     if (radius > radius_outer) {
-        return 1;
+        // std::cout << "ERROR: arm outside maximum radius" << std::endl;
+        return false;
+    } else if (actual_z < height_min) {
+        // std::cout << "ERROR: arm outside maximum height" << std::endl;
+        return false;
+    } else if (radius2 < radius_inner && actual_z < 0.2){
+        // std::cout << "ERROR: arm inside minimum radius or height" << std::endl;
+        return false;
     }
-    else if (actual_z < height_min) {
-        return 2;
-    }
-    else if (radius2 < radius_inner && actual_z < 0.2){
-        return 3;
-    }
-    return 0;
+    return true;
 }
 
-int LineSearch::InBounds(LA::vecd<5> angles) {
+bool LineSearch::InBounds(LA::vecd<5> angles) {
     LA::vecd<3> actual_coords = fk.GetExtendedPositionVector(angles);
     double actual_x = actual_coords[0];
     double actual_y = actual_coords[1];
@@ -107,17 +108,20 @@ int LineSearch::InBounds(LA::vecd<5> angles) {
     if(USE_BOUNDS){
         for (int i = 0; i < 5; i++) {
             if (angles[i] > max_angle[i] || angles[i] < min_angle[i]) {
-                return i+3;
+                // std::cout << "ERROR: angle beyound bounds of motor" << i << std::endl;
+                return false;
             }
         }
     }
     if (radius > radius_outer) {
-        return 1;
+        // std::cout << "ERROR: arm outside maximum radius" << std::endl;
+        return false;
     }
     if (actual_z < height_min) {
-        return 2;
+        // std::cout << "ERROR: arm inside minimum radius" << std::endl;
+        return false;
     }
-    return 0;
+    return true;
 }
 
 
@@ -152,7 +156,7 @@ LA::vecd<5> LineSearch::GoldenSearch(LA::vecd<5> current_pos, LA::vecd<5> direct
     // std::cout << "dir_norm: " << std::endl;
     // print(dir_norm);
     // print(x_max, true);
-    while (InBounds(x_max) == 0) {
+    while (InBounds(x_max)) {
         x_max = x_max + dir_inc;
         dir_count += 1;
         //std::cout << "bound check: " << dir_count << " " <<  x_max << std::endl;
@@ -162,7 +166,7 @@ LA::vecd<5> LineSearch::GoldenSearch(LA::vecd<5> current_pos, LA::vecd<5> direct
     if (dir_count == 1) {
         std::cout << "wah" << std::endl;
     }
-    while (InBounds(x_max) != 0) {
+    while (!InBounds(x_max)) {
          x_max = x_max - dir_inc * 0.5;
     }
     //std::cout << InBounds(x_max) << std::endl;

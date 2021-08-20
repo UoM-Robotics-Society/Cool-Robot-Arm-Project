@@ -20,11 +20,12 @@ class ForwardKinematics{
     double sin_alpha[CRAP_NUM_FRAMES];
 
     LA::matd<4, 4> A[CRAP_NUM_FRAMES];
+    
    public:
+    /*
+    Default constructor, fills attributes with DH parameters.
+    */
     ForwardKinematics();
-
-    // The fourth element of the vector is always 1. This is a by-product of the forward kinematics equation.
-    // Not sure if still true
 
     /*
     Calculate the position of the end affector for a certain robot configuration.

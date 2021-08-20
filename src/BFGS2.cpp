@@ -151,8 +151,8 @@ LA::vecd<5> BFGS (double x, double y, double z, LA::vecd<5> current_motors) {
 
             LA::matd<1, 5> St = LA::transpose(S);
             LA::matd<1, 5> Yt = LA::transpose(Y);
+
             double aa = LA::as_scalar(St * Y);
-            
             LA::matd<1,5> ab = LA::transpose(Y) * Bi;
             double ac = LA::as_scalar(ab * Y);
             LA::matd<5,5> ad = S * St;
@@ -166,20 +166,23 @@ LA::vecd<5> BFGS (double x, double y, double z, LA::vecd<5> current_motors) {
             LA::matd<5, 5> b = bb + bd;
 
             double c = LA::as_scalar(St * Y);
-            if (false) {
-                std::cout << "a: " << std::endl; 
-                print(a);
-                std::cout << "b: " << std::endl; 
-                print(b);
-                std::cout << "a: " << c << std::endl;
-                std::cout << "S = "; print(S);
-                std::cout << "Y = "; print(Y);
-            }
 
             double da = c * c;
             LA::matd<5, 5> db = a * (1/da);
             LA::matd<5, 5> dc = b * (1/c);
             LA::matd<5, 5> d = db - dc;
+            if (true) {
+                std::cout << "a: " << std::endl; 
+                print(a);
+                std::cout << "b: " << std::endl; 
+                print(b);
+                std::cout << "c: " << c << std::endl;
+                std::cout << "d: " << std::endl; 
+                print(d);
+                std::cout << "S = "; print(S);
+                std::cout << "Y = "; print(Y);
+            }
+
             Bi = Bi + d;
             X=Xp;
             count += 1;
@@ -193,6 +196,10 @@ LA::vecd<5> BFGS (double x, double y, double z, LA::vecd<5> current_motors) {
                 print(Bi);
             }
             if(count > 50){cost = 0;}
+        }
+        if (false) {
+            LA::vecd<3> pos = fk.GetExtendedPositionVector(X);
+            std::cout << "pos: "; print(pos, true);
         }
         if(ls.dist_to_goal(X,0) > 0.002){
         //if(mu>0.001){

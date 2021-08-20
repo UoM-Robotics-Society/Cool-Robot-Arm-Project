@@ -6,9 +6,6 @@
 #include "forward_kinematics.h"
 
 
-
-
-
 arma::dmat BFGS (double x, double y, double z, arma::vec X){
 
     LineSearch arm(57,365,430,0);

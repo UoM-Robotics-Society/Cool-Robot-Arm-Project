@@ -1,7 +1,10 @@
-#pragma once
+#ifndef LA_MATHS
+#define LA_MATHS
+
 #include <iostream>
 #include <cmath>
 #include <assert.h>
+
 
 namespace LA {
 
@@ -10,7 +13,6 @@ namespace LA {
     typedef int length_t;
     template<length_t L, typename T> struct vec;
     template<length_t R, length_t C, typename T> struct mat;
-
 
     // Non-Vector and Non-Matrix Functions
     template<typename T>
@@ -494,11 +496,11 @@ namespace LA {
         }
 
         mat(std::initializer_list<std::initializer_list<T>> arg) {
-            M_Assert((int)arg.size() == this->height(), "ERROR: Invalid input (width)");
+            assert((int)arg.size() == this->height() && "ERROR: Invalid input (width)");
             int i = 0;
             int j = 0;
             for (std::initializer_list<T> list : arg) {
-                M_Assert((int)list.size() == this->width(), "ERROR: Invalid input (height)");
+                assert((int)list.size() == this->width() && "ERROR: Invalid input (height)");
                 i = 0;
                 for (T t : list) {
                     this->operator[](i)[j] = t;
@@ -951,7 +953,6 @@ namespace LA {
 
     template<int N, typename T>
     void print(vec<N, T> const& v, bool asRow = false, bool hasNewlineEnd = true) {
-        std::cout << "Vector: " << std::endl;
         char delimmiter = asRow ? '\t' : '\n';
         for (int i = 0; i < v.size(); i++) {
             std::cout << v[i] << delimmiter;
@@ -963,7 +964,6 @@ namespace LA {
 
     template<int N, int M, typename T>
     void print(mat<N, M, T> const& m, bool hasNewline = true) {
-        std::cout << "Matrix: " << std::endl;
         for (int j = 0; j < m.height(); j++) {
             for (int i = 0; i < m.width(); i++) {
                 std::cout << m[i][j] << "\t";
@@ -1022,3 +1022,5 @@ namespace LA {
     #endif
 
 }
+
+#endif
