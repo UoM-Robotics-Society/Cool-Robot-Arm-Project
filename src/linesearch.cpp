@@ -86,7 +86,7 @@ bool LineSearch::InBoundsPos(LA::vecd<3> pos) {
     double actual_z = pos[2];
     double radius = sqrt(pow(actual_x,2) + pow(actual_y,2) + pow(actual_z - 0.065,2));
     double radius2 = sqrt(pow(actual_x,2) + pow(actual_y,2));
-    if (radius > radius_outer) {
+    if (radius > radius_outer - 0.05) {
         // std::cout << "ERROR: arm outside maximum radius" << std::endl;
         return false;
     } else if (actual_z < height_min) {

@@ -12,8 +12,8 @@ class LineSearch {
         ForwardKinematics fk;
 
     public:
-        double min_angle[CRAP_NUM_REVOLUTE_FRAMES] = {-LA::PI, -LA::PI/2, -2*LA::PI/3,   -LA::PI/2,   -LA::PI};
-        double max_angle[CRAP_NUM_REVOLUTE_FRAMES] = {LA::PI,  LA::PI/2,  2*LA::PI/3,    LA::PI/2,    LA::PI};
+        double min_angle[CRAP_NUM_REVOLUTE_FRAMES] = {-LA::PI/2, -LA::PI/2, -2*LA::PI/3,   -LA::PI/2,   -LA::PI};
+        double max_angle[CRAP_NUM_REVOLUTE_FRAMES] = {LA::PI/2,  LA::PI/2,  2*LA::PI/3,    LA::PI/2,    LA::PI};
 
         /*
         Initialize line search.
