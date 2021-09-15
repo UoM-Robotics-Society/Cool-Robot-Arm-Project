@@ -124,6 +124,25 @@ bool LineSearch::InBounds(LA::vecd<5> angles) {
     return true;
 }
 
+LA::vecd<5> LineSearch::GetAngleBounds(LA::vecd<5> current_pos, LA::vecd<5> direction) {
+    // CONSTANTS
+    const double accuracy = 0.00001;
+    LA::vecd<5> dir_norm = LA::normalise(direction);
+    LA::vecd<5> barrier = current_pos;
+    LA::vecd<5> new_barrier = current_pos;
+    double step = 1.0;
+    while(step > accuracy) {
+        new_barrier = barrier + step * dir_norm;
+        if (InBounds(new_barrier)) {
+            barrier = new_barrier;
+            step *= 2;
+        } else {
+            step *= 0.5;
+        }
+    }
+    return barrier;
+}
+
 
 // https://en.wikipedia.org/wiki/Golden-section_search
 
@@ -140,40 +159,16 @@ bool LineSearch::InBounds(LA::vecd<5> angles) {
 // @param direction - direction of search
 // @return step as float value
 LA::vecd<5> LineSearch::GoldenSearch(LA::vecd<5> current_pos, LA::vecd<5> direction, double mu) {
-    // CONSTANTS
-    LA::vecd<5> dir_norm = LA::normalise(direction);
-    double tolerance = 0.000001;
-    double tau = 2 / (1 + sqrt(5));
-    double dir_step = 0.0001;
+    // CONSTANT
     LA::vecd<5> x_min = current_pos;
     LA::vecd<5> x_max = LA::vecd<5>(0.0);
     LA::vecd<5> start_min = x_min;
     LA::vecd<5> start_max = x_max;
-    x_max = current_pos;
-    int dir_count = 0;
-    LA::vecd<5> dir_inc = dir_norm * dir_step;
-
-    // std::cout << "dir_norm: " << std::endl;
-    // print(dir_norm);
-    // print(x_max, true);
-    while (InBounds(x_max)) {
-        x_max = x_max + dir_inc;
-        dir_count += 1;
-        //std::cout << "bound check: " << dir_count << " " <<  x_max << std::endl;
-    }
-    //std::cout << "found bound" << std::endl;
-    //std::cout << InBounds(x_max) << std::endl;
-    if (dir_count == 1) {
-        std::cout << "wah" << std::endl;
-    }
-    while (!InBounds(x_max)) {
-         x_max = x_max - dir_inc * 0.5;
-    }
-    //std::cout << InBounds(x_max) << std::endl;
-    //std::cout << dir_count << std::endl;
-    //   for (int i = 0; i < 5; i++) {
-    //     x_max[i] = (direction[i] >= 0) ?  this->max_angle[i] : this->min_angle[i];
-    //   }
+    
+    double tolerance = 0.000001;
+    double tau = 2 / (1 + sqrt(5));
+    
+    x_max = GetAngleBounds(current_pos, direction);
 
     // VARIALBES
     int k = 0; // interations;

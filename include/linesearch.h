@@ -64,6 +64,9 @@ class LineSearch {
         */
         bool InBounds(LA::vecd<5> angles);
 
+        // Fill documentation
+        LA::vecd<5> GetAngleBounds(LA::vecd<5> current_pos, LA::vecd<5> direction);
+
         // https://en.wikipedia.org/wiki/Golden-section_search
 
         // tolerance == numerical tolerance threshold
