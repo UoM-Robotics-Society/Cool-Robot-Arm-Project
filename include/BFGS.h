@@ -2,7 +2,7 @@
 #include "linesearch.h"
 #include "forwardkinematics.h"
 
-#define MU_INIT 1000.0
+#define MU_INIT 1.0
 
 // kind of dumb class but helps debug the maths of the algorithm
 class BFGS {
