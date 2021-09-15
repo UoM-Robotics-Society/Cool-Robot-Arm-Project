@@ -11,6 +11,7 @@
 #define GOAL_AXIS_MAX 0.3
 #define GOAL_AXIS_MIN 0.1
 
+
 int main () {
     // BFGS subsystems for debugging
     LineSearch ls(0.057,0.365,0.430,0);
@@ -21,8 +22,9 @@ int main () {
     start[4] = 0.0;
 
     // set target position
-    double x, y, z = 0.1;
+    double x = 0.1, y = 0.1, z = 0.1;
     LA::vecd<3> position = {x, y, z};
+    bool goalInBounds = false;
     
     std::cout << "Running BFGS Algorithm..." << std::endl;
     // instance a BFGS algorithm object

@@ -34,11 +34,15 @@ int main () {
         z = double(rand()) / double((RAND_MAX)) * (GOAL_AXIS_MAX - GOAL_AXIS_MIN) + GOAL_AXIS_MIN;
         if (rand() > 0.5)
             z = -z;
+
+        // x = 0.1;
+        // y = 0.1;
+        // z = 0.1;
         ls.set_goal(x, y, z);
         position = { x, y, z };
         goalInBounds = ls.InBoundsPos(position);
     }
-    
+    //std::cout << "TEST: " << ls.InBoundsPos(LA::vecd<3>(0.1)) << std::endl;
     
     if (DEBUG_START_INFO) {
         std::cout << "---------------------" << std::endl;
