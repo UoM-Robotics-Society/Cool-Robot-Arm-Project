@@ -6,6 +6,7 @@
 #define MU_BROKEN 0.000002
 #define COST_THRESHOLD 0.0005
 #define DIST_THRESHOLD 0.002
+#define MU_MULTIPLIER 0.7
 
 // dumps all algorithm variables to the console
 // use for debugging
@@ -110,7 +111,7 @@ bool BFGS::Run (double x, double y, double z, LA::vecd<5> current_motors, LA::ve
         }
 
         if (ls.dist_to_goal(X, 0) > DIST_THRESHOLD) {
-            mu = mu * 0.9;
+            mu = mu * MU_MULTIPLIER;
         } else {
             output_motors = X;
             return true;
