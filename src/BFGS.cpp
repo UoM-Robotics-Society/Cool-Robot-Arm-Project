@@ -6,7 +6,7 @@
 #define MU_BROKEN 0.000002
 #define COST_THRESHOLD 0.0005
 #define DIST_THRESHOLD 0.002
-#define MU_MULTIPLIER 0.7
+#define MU_MULTIPLIER 0.5
 
 // dumps all algorithm variables to the console
 // use for debugging
@@ -36,6 +36,7 @@ void BFGS::PrintPos() {
 
 bool BFGS::Run (double x, double y, double z, LA::vecd<5> current_motors, LA::vecd<5>& output_motors) {
     Reset();
+    ft.Start();
     X = current_motors;
     ls.set_goal(x,y,z);
     int count= 0;
@@ -66,8 +67,11 @@ bool BFGS::Run (double x, double y, double z, LA::vecd<5> current_motors, LA::ve
                 output_motors = X;
                 return false;
             }
-
+            ft.Frame();
+            std::cout << "\t\tBFGS before GS: " << ft.GetLastFrameElapsed() << "\t" << ft.GetTotalElapsed() << std::endl;
             Xp = ls.GoldenSearch(X, P, mu);
+            ft.Frame();
+            std::cout << "\t\tGolden Search: " << ft.GetLastFrameElapsed() << "\t" << ft.GetTotalElapsed() << std::endl;
             //costDiff = abs(ls.cost_function(X,0,mu) - ls.cost_function(Xp,0,mu));
             S = Xp - X;
             LA::vecd<5> cost1 = ls.cost_function_gradient(Xp, 0, mu);
@@ -107,7 +111,8 @@ bool BFGS::Run (double x, double y, double z, LA::vecd<5> current_motors, LA::ve
             //     std::cout << "Bi: " << std::endl;
             //     print(Bi);
             // }
-
+            ft.Frame();
+            std::cout << "\t\tEnd of BFGS: " << ft.GetLastFrameElapsed() << "\t" << ft.GetTotalElapsed() << std::endl;
         }
 
         if (ls.dist_to_goal(X, 0) > DIST_THRESHOLD) {
@@ -116,6 +121,9 @@ bool BFGS::Run (double x, double y, double z, LA::vecd<5> current_motors, LA::ve
             output_motors = X;
             return true;
         }
+        
+        ft.Frame();
+        std::cout << "\t\tFinished 20 iterations: " << ft.GetLastFrameElapsed() << "\t" << ft.GetTotalElapsed() << std::endl;
     }
 }
 
@@ -124,4 +132,5 @@ void BFGS::Reset() {
     Bi = Bii;
     zeros, Xp, P, S, Y = LA::vecd<5>(0.0);
     mu = MU_INIT;
+    ft = FrameTimer();
 }

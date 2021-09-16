@@ -1,6 +1,7 @@
 #include "la.h"
 #include "linesearch.h"
 #include "forwardkinematics.h"
+#include "frametimer.h"
 
 #define MU_INIT 1.0
 
@@ -18,6 +19,8 @@ class BFGS {
         double mu = MU_INIT;
         LA::vecd<5> costVec;
         double cost = 100;
+
+        FrameTimer ft = FrameTimer();
 
     public:
         bool debugIteration = false;
