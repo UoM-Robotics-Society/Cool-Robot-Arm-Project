@@ -1,3 +1,6 @@
 # Cool-Robot-Arm-Project
-- 'arm_model.m' is the current model for the arm
-- 'IK.m' implements the inverse kinematics built into matlab and makes the arm draw a circle
+- 'MATLAB'      Contains the current model for the arm and other matlab simulation files
+- 'ProjectIO'   Contains project file setups for the use of PlatformIO extension for VSCode, used for programming microcontrollers
+- 'C'           Contains Code in C/C++: arm control code. 
+- 'Python'      Contains Code in Python, Computer vision, chess code.  
+- 'Other'       Contains any other Files associated to the project
