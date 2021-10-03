@@ -53,9 +53,9 @@ double LineSearch::dist_to_goal(LA::vecd<5> q, double d) {
 LA::vecd<5> LineSearch::cost_function_gradient(LA::vecd<5> q, double d, double MU) {
     LA::vecd<5> grad(0.0);
     double q0 = q[0];
-    double q1 = q[1] + LA::PI / 2;;
+    double q1 = q[1] + LA::Pi / 2;;
     double q2 = q[2];
-    double q3 = q[3] - LA::PI / 2;;
+    double q3 = q[3] - LA::Pi / 2;;
     double q4 = q[4];
     LA::vecd<3> actual_coords = fk.GetExtendedPositionVector(q);
     double actual_x = actual_coords[0];
