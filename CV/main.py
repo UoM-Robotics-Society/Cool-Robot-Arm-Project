@@ -1,3 +1,4 @@
+import threading
 import pickle
 import os
 
@@ -6,6 +7,7 @@ import cv2.aruco as aruco
 import numpy as np
 from tkinter import Frame, Tk, Label, IntVar
 from tkinter.ttk import Button, Checkbutton
+from flask import Flask
 
 from util import extrapolate_points, draw_points
 
@@ -19,19 +21,18 @@ NAME = {
     KING: "King",
     QUEEN: "Queen",
     PAWN: "Pawn",
-    BLACK: "Black",
-    WHITE: "White",
 }
 
 SHOW_MASK = False
 SHOW_ARMASK = False
 SHOW_CHESS_MARKERS = False
 SHOW_EXTRAPOLATED = False
-SHOW_BOARD = True
+SHOW_BOARD = False
+
 SHOW_REGIONS = True
 
 class Main:
-    PIECES_WAIT = 5
+    PIECES_WAIT = 15
     ALLOCATIONS = {
         (0, 0): (ROOK, WHITE),
         (1, 0): (KNIGHT, WHITE),
@@ -101,6 +102,9 @@ class Main:
 
         self.grey = None
         self.points = None
+
+        self.app = Flask(__name__)
+        self.app.route("/")(self.flask_route)
 
     def bake_allocations(self):
         self.piece_allocations.clear()
@@ -289,6 +293,29 @@ class Main:
             if SHOW_BOARD:
                 cv2.imshow("board", focus)
 
+    def serialize(self):
+        out = ""
+        for y in range(8):
+            line = []
+
+            for x in range(8):
+                for piece in self.pieces:
+                    x1, y1, _ = self.pieces[piece]
+                    if x1 == x and y1 == y:
+                        allocation = self.piece_allocations.get(piece)
+                        if allocation is None:
+                            line.append("??")
+                        else:
+                            line.append(("B" if allocation[1] else "W") + "RBNKQP"[allocation[0]])
+                        break
+                else:
+                    line.append("--")
+            out += " ".join(line) + "\n"
+        return out
+
+    def flask_route(self):
+        return self.serialize()
+
     def detect(self, img):
         if self.live_cal.get():
             self.update_cal(img)
@@ -311,7 +338,7 @@ class Main:
                 if allocation is not None:
                     cv2.putText(
                         regions[x][y],
-                        NAME[allocation[1]],
+                        "Black" if allocation[1] else "White",
                         (20, 70),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         0.55,
@@ -332,6 +359,8 @@ class Main:
             self.process_regions(regions)
 
     def mainloop(self):
+        threading.Thread(target=self.app.run, daemon=True).start()
+
         while True:
             img = self.get_frame()
             self.detect(img)
