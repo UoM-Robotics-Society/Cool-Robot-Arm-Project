@@ -2,6 +2,19 @@ import numpy as np
 import cv2
 
 
+def interpolate_points(grid, w=9, h=9):
+    def interpolate_1d(start, end, num):
+        d = end - start
+        return start + (np.stack([np.arange(num), np.arange(num)], axis=1) * (d / (num - 1)))
+
+    top = interpolate_1d(grid[0], grid[1], w)
+    bottom = interpolate_1d(grid[2], grid[3], w)
+    ret = np.empty((w, h, 2))
+    for x in range(w):
+        ret[x,:] = interpolate_1d(top[x], bottom[x], h)
+    return [list(i) for i in ret]
+
+
 def extrapolate_points(size, corners):
     w, h = size
     get = lambda x, y: corners[y * h + x, 0]
@@ -65,3 +78,10 @@ def draw_points(img, points):
         for point in col:
             cv2.circle(new, (int(point[0]), int(point[1])), 5, (0, 255, 0))
     return new
+
+
+def corner_point(points, corner, get=lambda x:x):
+    return min(points, key=lambda x: (
+        (get(x)[0] - corner[0]) ** 2
+        + (get(x)[1] - corner[1]) ** 2
+    ))

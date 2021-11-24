@@ -9,7 +9,7 @@ from tkinter import Frame, Tk, Label, IntVar
 from tkinter.ttk import Button, Checkbutton
 from flask import Flask
 
-from util import extrapolate_points, draw_points
+from util import corner_point, extrapolate_points, draw_points, interpolate_points
 
 
 ROOK, BISHOP, KNIGHT, KING, QUEEN, PAWN = range(6)
@@ -28,8 +28,12 @@ SHOW_ARMASK = False
 SHOW_CHESS_MARKERS = False
 SHOW_EXTRAPOLATED = False
 SHOW_BOARD = False
-
+SHOW_QUICK_CAL = False
 SHOW_REGIONS = True
+
+CORNERS = [
+    403, 634, 666, 76
+]
 
 class Main:
     PIECES_WAIT = 15
@@ -88,6 +92,13 @@ class Main:
         Checkbutton(f, variable=self.live_cal, state="on").pack(side="right")
         f.pack()
 
+        self.quick_cal = IntVar()
+        self.quick_cal.set(0)
+        f = Frame(self.tk)
+        Label(f, text="Quick Calibration").pack(side="left")
+        Checkbutton(f, variable=self.quick_cal, state="on").pack(side="right")
+        f.pack()
+
         self.sharpen = IntVar()
         self.sharpen.set(1)
         f = Frame(self.tk)
@@ -127,14 +138,13 @@ class Main:
             grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             _, masked = cv2.threshold(grey, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
             if SHOW_ARMASK:
-                cv2.imshow("armask", masked)
+                cv2.imshow("ARUco Mask", masked)
         else:
             masked = img
 
         corners, ids, _ = aruco.detectMarkers(
             masked, self.aruco_dict, parameters=self.aruco_params
         )
-        aruco.drawDetectedMarkers(img, corners, ids)
         return corners, ids
 
     def get_frame(self):
@@ -156,7 +166,7 @@ class Main:
         )
 
         if SHOW_MASK:
-            cv2.imshow("mask", msk)
+            cv2.imshow("Mask", msk)
 
         return msk
 
@@ -205,7 +215,7 @@ class Main:
 
         if SHOW_REGIONS:
             stitched = self.stitch_8x8(regions)
-            cv2.imshow("squares", stitched)
+            cv2.imshow("Squares", stitched)
 
     def update_cal(self, img):
         msk = self.get_mask(img)
@@ -242,7 +252,45 @@ class Main:
 
             if SHOW_CHESS_MARKERS:
                 fnl = cv2.drawChessboardCorners(img.copy(), (7, 7), corners, ret)
-                cv2.imshow("markers", fnl)
+                cv2.imshow("Markers", fnl)
+
+    def update_cal_quick(self, img):
+        corners, ids = self.identify_aruco(img, False)
+        if corners is None or ids is None:
+            return
+
+        grid = []
+        for points, id_ in zip(corners, ids):
+            if id_[0] not in CORNERS:
+                continue
+
+            centre = (np.sum(points, axis=1) / 4)[0]
+            grid.append((centre, points[0]))
+
+        if SHOW_QUICK_CAL:
+            im = img.copy()
+            aruco.drawDetectedMarkers(im, corners, ids)
+
+        if len(grid) == 4:
+            tl = corner_point(grid, (0, 0), get=lambda x: x[0])
+            tr = corner_point(grid, (img.shape[1], 0), get=lambda x: x[0])
+            bl = corner_point(grid, (0, img.shape[0]), get=lambda x: x[0])
+            br = corner_point(grid, (img.shape[1], img.shape[0]), get=lambda x: x[0])
+
+            tl_inner = corner_point(tl[1], br[0])
+            tr_inner = corner_point(tr[1], bl[0])
+            bl_inner = corner_point(bl[1], tr[0])
+            br_inner = corner_point(br[1], tl[0])
+
+            if SHOW_QUICK_CAL:
+                for (start, end) in [(tl_inner, tr_inner), (tr_inner, br_inner), (br_inner, bl_inner), (bl_inner, tl_inner)]:
+                    cv2.line(im, (int(start[0]), int(start[1])), (int(end[0]), int(end[1])), (255, 0, 0), 1)
+
+            grid = interpolate_points((tl_inner, tr_inner, bl_inner, br_inner))
+            self.points = grid
+
+        if SHOW_QUICK_CAL:
+            cv2.imshow("Quick Callibration", im)
 
     def show_focus_region(self, img):
         if self.points:
@@ -264,8 +312,10 @@ class Main:
             )
             if SHOW_EXTRAPOLATED:
                 cb = draw_points(img, self.points)
-                cv2.imshow("extrapolated", cb)
+                cv2.imshow("Extrapolated Board", cb)
             corners, ids = self.identify_aruco(focus, True)
+            if SHOW_BOARD:
+                aruco.drawDetectedMarkers(focus, corners, ids)
 
             for i in {**self.pieces}:
                 self.pieces[i][2] -= 1
@@ -291,7 +341,7 @@ class Main:
                             2,
                         )
             if SHOW_BOARD:
-                cv2.imshow("board", focus)
+                cv2.imshow("Extracted Board", focus)
 
     def serialize(self):
         out = ""
@@ -318,7 +368,10 @@ class Main:
 
     def detect(self, img):
         if self.live_cal.get():
-            self.update_cal(img)
+            if self.quick_cal.get():
+                self.update_cal_quick(img)
+            else:
+                self.update_cal(img)
 
         if self.points:
             regions = self.get_8x8_regions(img, self.points)
@@ -369,4 +422,4 @@ class Main:
 
 
 if __name__ == "__main__":
-    Main(4).mainloop()
+    Main(1).mainloop()
