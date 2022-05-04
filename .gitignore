@@ -1,0 +1,5 @@
+*.pickle
+*.pyc
+__pycache__/
+.vscode/
+.pio/
